@@ -5,18 +5,18 @@ if (! defined ( '_CAN_LOAD_FILES_' ))
 /**
  * Facebook Pack
  *
- * Facebook Pack contains Facebook Social Plugins which let you see what your friends have liked, commented on or shared on sites across the web.
+ * Facebook Pack contains Facebook Social Plugins which let you see what your friends have liked,
+ * commented on or shared on sites across the web.
  *
- * @ (C) Copyright 2011 by (internet-solutions.si | celavi.org) Ales Loncar
- * @ Version 1.0
+ * @ (C) Copyright 2016 by (celavi.org) Ales Loncar
+ * @ Version 1.1
  *
  */
 class FacebookPack extends Module {
-	const INSTALL_SQL_FILE = 'install.sql';
-	const UNINSTALL_SQL_FILE = 'uninstall.sql';
+	const INSTALL_SQL_FILE = 'sql/install.sql';
+	const UNINSTALL_SQL_FILE = 'sql/uninstall.sql';
 	
-	private $_html = '';
-	private $_postErrors = array ();
+	private $_postErrors = array();
 	
 	private $_fbPack_app_id = '';
 	private $_fbPack_app_secret = '';
@@ -25,15 +25,15 @@ class FacebookPack extends Module {
 	private $_fbPack_like_button = 'no';
 	private $_fbPack_like_url = '';
 	private $_fbPack_like_send = 'yes';
-	private $_fbPack_like_layout = 'button_count';
+	private $_fbPack_like_layout = 'standard';
 	private $_fbPack_like_width = 280;
 	private $_fbPack_like_faces = 0;
-	private $_fbPack_like_action = 'recommend';
+	private $_fbPack_like_action = 'like';
 	private $_fbPack_like_color = 'light';
 	private $_fbPack_like_font = 'arial';
 	
 	private $_fbPack_like_box = 'no';
-	private $_fbPack_facebook_page_url = 'http://www.facebook.com/FitBodyShop';
+	private $_fbPack_facebook_page_url = 'http://www.facebook.com/prestashop/';
 	private $_fbPack_box_width = 190;
 	private $_fbPack_box_height = 390;
 	private $_fbPack_box_color = 'light';
@@ -51,103 +51,146 @@ class FacebookPack extends Module {
     private $_fbPack_login_button = 'no';
     private $_fbPack_login_button_label = 'Login with Facebook';
     
-    private $_ps_version = 0;
-    
-    public      $_errors            = array();
+    public $_errors = array();
 	
 	public function __construct() {
-		
-    	$this->_ps_version = floatval(substr(_PS_VERSION_,0,3));
     	
 		$this->name = 'facebookpack';
-		// ps version 1.3.x
-		if ($this->_ps_version < 1.4)
-			$this->tab = 'internet-solutions.si | celavi.org';
-		// ps version 1.4.x
-		else {
-			$this->tab 		= 'social_networks';
-			$this->author 	= 'internet-solutions.si | celavi.org';
-		}
-		$this->version = 1.0;
+		$this->tab = 'social_networks';
+		$this->author = 'Ales Loncar';
+		$this->version = 1.1;
+
+		$this->displayName = $this->l('Facebook Pack');
+		$this->description = $this->l('Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments');
 		
-		$this->_refreshProperties ();
-		parent::__construct ();
-		
-		$this->displayName = $this->l( 'Facebook Pack' );
-		$this->description = $this->l( 'Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments' );
+		$this->_refreshProperties();
+		parent::__construct();
 	}
 	
 	public function install() {
-		if (! file_exists ( dirname ( __FILE__ ) . '/' . self::INSTALL_SQL_FILE ))
+		if (!file_exists(dirname( __FILE__ ) . '/' . self::INSTALL_SQL_FILE ))
 			return (false);
-		else if (! $sql = file_get_contents ( dirname ( __FILE__ ) . '/' . self::INSTALL_SQL_FILE ))
+		else if (!$sql = file_get_contents(dirname( __FILE__ ) . '/' . self::INSTALL_SQL_FILE))
 			return (false);
-		$sql = str_replace ( 'PREFIX_', _DB_PREFIX_, $sql );
-		$sql = preg_split ( "/;\s*[\r\n]+/", $sql );
-		foreach ( $sql as $query ) {
-			if (trim ( $query )) {
-				if (! Db::getInstance ()->Execute ( trim ( $query ) ))
+		$sql = str_replace('PREFIX_', _DB_PREFIX_, $sql);
+		$sql = preg_split("/;\s*[\r\n]+/", $sql);
+		foreach($sql as $query) {
+			if(trim ($query)) {
+				if(!Db::getInstance()->Execute(trim($query)))
 					return (false);
 			}
 		}
-		
-		//if (! $this->_overrideFiles()) {
-		//	$this->displayErrors();
-		//	return false;
-		//}
-		
-		if (! parent::install () or ! $this->registerHook ( 'xmlNamespace' ) or ! $this->registerHook ( 'header' ) or 
-            ! $this->registerHook('top') or ! $this->registerHook ( 'footer' ) or ! $this->registerHook ( 'leftColumn' ) or 
-            ! $this->registerHook ( 'extraLeft' ) or ! $this->registerHook ( 'productTab' ) or 
-            ! $this->registerHook ( 'productTabContent' ))
+
+		if (!parent::install() or !$this->registerHook('xmlNamespace') or !$this->registerHook('header') or
+            !$this->registerHook('top') or !$this->registerHook('footer') or !$this->registerHook('leftColumn') or
+            !$this->registerHook('extraLeft') or !$this->registerHook('productTab') or
+            !$this->registerHook('productTabContent'))
 			return false;
 		
 		return true;
 	}
 	
 	public function uninstall() { 
-        if (! file_exists ( dirname ( __FILE__ ) . '/' . self::UNINSTALL_SQL_FILE ))
+        if (!file_exists(dirname(__FILE__) . '/' . self::UNINSTALL_SQL_FILE))
 			return (false);
-		else if (! $sql = file_get_contents ( dirname ( __FILE__ ) . '/' . self::UNINSTALL_SQL_FILE ))
+		else if (!$sql = file_get_contents(dirname(__FILE__) . '/' . self::UNINSTALL_SQL_FILE))
 			return (false);
-        $sql = str_replace ( 'PREFIX_', _DB_PREFIX_, $sql );
-		$sql = preg_split ( "/;\s*[\r\n]+/", $sql );
-		foreach ( $sql as $query ) {
-			if (trim ( $query )) {
-				if (! Db::getInstance ()->Execute ( trim ( $query ) ))
+        $sql = str_replace('PREFIX_', _DB_PREFIX_, $sql);
+		$sql = preg_split("/;\s*[\r\n]+/", $sql);
+		foreach ($sql as $query) {
+			if (trim($query)) {
+				if (!Db::getInstance()->Execute(trim($query)))
 					return (false);
 			}
 		}
         
         // general
-		if (! Configuration::deleteByName ( 'FBPACK_APP_ID' ) or ! Configuration::deleteByName ( 'FBPACK_APP_SECRET' ) or ! Configuration::deleteByName ( 'FBPACK_APP_LOCALE' ) or // like button
-		! Configuration::deleteByName ( 'FBPACK_LIKE_BUTTON' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_URL' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_SEND' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_LAYOUT' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_WIDTH' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_FACES' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_ACTION' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_COLOR' ) or ! Configuration::deleteByName ( 'FBPACK_LIKE_FONT' ) or // like box
-		! Configuration::deleteByName ( 'FBPACK_LIKE_BOX' ) or ! Configuration::deleteByName ( 'FBPACK_FACEBOOK_PAGE_URL' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_WIDTH' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_HEIGHT' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_COLOR' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_FACES' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_BORDER_COLOR' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_STREAM' ) or ! Configuration::deleteByName ( 'FBPACK_BOX_HEADER' ) or // comments
-		! Configuration::deleteByName ( 'FBPACK_COMMENTS' ) or ! Configuration::deleteByName ( 'FBPACK_COMMENTS_POSTS' ) or ! Configuration::deleteByName ( 'FBPACK_COMMENTS_WIDTH' ) or ! Configuration::deleteByName ( 'FBPACK_COMMENTS_COLOR' ) or ! Configuration::deleteByName ( 'FBPACK_COMMENTS_MODERATORS' ) or 
-        ! Configuration::deleteByName ( 'FBPACK_LOGIN_BUTTON' ) or
-                
-		! parent::uninstall ())
-			return false;
+		if (!Configuration::deleteByName('FBPACK_APP_ID') or !Configuration::deleteByName('FBPACK_APP_SECRET') or
+			!Configuration::deleteByName('FBPACK_APP_LOCALE') or !Configuration::deleteByName('FBPACK_LIKE_BUTTON') or
+			!Configuration::deleteByName('FBPACK_LIKE_URL') or !Configuration::deleteByName('FBPACK_LIKE_SEND') or
+			!Configuration::deleteByName('FBPACK_LIKE_LAYOUT') or !Configuration::deleteByName('FBPACK_LIKE_WIDTH') or
+			!Configuration::deleteByName('FBPACK_LIKE_FACES') or !Configuration::deleteByName('FBPACK_LIKE_ACTION') or
+			!Configuration::deleteByName('FBPACK_LIKE_COLOR') or !Configuration::deleteByName('FBPACK_LIKE_FONT') or
+			!Configuration::deleteByName('FBPACK_LIKE_BOX') or !Configuration::deleteByName('FBPACK_FACEBOOK_PAGE_URL') or
+			!Configuration::deleteByName('FBPACK_BOX_WIDTH') or !Configuration::deleteByName('FBPACK_BOX_HEIGHT') or
+			!Configuration::deleteByName('FBPACK_BOX_COLOR') or !Configuration::deleteByName('FBPACK_BOX_FACES') or
+			!Configuration::deleteByName('FBPACK_BOX_BORDER_COLOR') or !Configuration::deleteByName('FBPACK_BOX_STREAM') or
+			!Configuration::deleteByName('FBPACK_BOX_HEADER') or !Configuration::deleteByName('FBPACK_COMMENTS') or
+			!Configuration::deleteByName('FBPACK_COMMENTS_POSTS') or !Configuration::deleteByName('FBPACK_COMMENTS_WIDTH') or
+			!Configuration::deleteByName('FBPACK_COMMENTS_COLOR') or !Configuration::deleteByName('FBPACK_COMMENTS_MODERATORS') or
+			!Configuration::deleteByName('FBPACK_LOGIN_BUTTON') or
+			!parent::uninstall ()) {
+				return false;
+		}
+
+
 		return true;
 	}
 	
 	public function getContent() {
-		$this->_html = '<h2>' . $this->displayName . '</h2>';
-		if (! empty ( $_POST )) {
-			$this->_postValidation ();
-			if (! sizeof ( $this->_postErrors ))
-				$this->_postProcess ();
-			else
-				foreach ( $this->_postErrors as $err )
-					$this->_html .= '<div class="alert error">' . $err . '</div>';
-		} else
-			$this->_html .= '<br />';
-		
-		$this->_displaySocialPlugins();
-		$this->_displayDonation ();
-		$this->_displayForm ();
-		
-		return $this->_html;
+		global $smarty;
+
+		$smarty->assign('displayName', $this->displayName);
+		$smarty->assign('path', $this->_path);
+		$smarty->assign('enablePlugin', $this->l('Enable Plugin'));
+		$smarty->assign('yes', $this->l('yes'));
+		$smarty->assign('no', $this->l('no'));
+		// social part
+		$smarty->assign('socialTitle', $this->l('This module contains Facebook Social Plugins'));
+		$smarty->assign('socialDescription_common', $this->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add four different Facebook social plugins.'));
+		$smarty->assign('socialDescription_simple', $this->l('Two simple plugins: Like Button, Like Box. And two which need Facebook Connect to work properly: Comments and Login Button.'));
+		$smarty->assign('socialDescription_connect', $this->l('Two plugins requires Facebook Connect to work properly: Comments and Login Button.'));
+		// like button
+		$smarty->assign('likeButton', $this->l('Like Button Configurator'));
+		$smarty->assign('fbPack_like_button', Tools::getValue('fbPack_like_button', $this->_fbPack_like_button));
+		$smarty->assign('fbPack_like_button_description', $this->l('Enable or Disable Facebook Like Button'));
+		$smarty->assign('fbPack_like_button_label', $this->l('URL to Like'));
+		$smarty->assign('fbPack_like_url', Tools::getValue('fbPack_like_url', $this->_fbPack_like_url));
+		$smarty->assign('fbPack_like_url_placeholder', $this->l('The URL to like. Defaults to the current page'));
+		$smarty->assign('fbPack_like_width_label', 'Width');
+		$smarty->assign('fbPack_like_width', Tools::getValue('fbPack_like_width', $this->_fbPack_like_width));
+		$smarty->assign('fbPack_like_width_placeholder', $this->l('The pixel width of the plugin'));
+		$smarty->assign('fbPack_like_width_description', $this->l('Width in pixels'));
+		$smarty->assign('fbPack_like_layout_label', $this->l('Layout'));
+		$smarty->assign('fbPack_like_layout', Tools::getValue('fbPack_like_layout', $this->_fbPack_like_layout));
+		$smarty->assign('fbPack_like_layout_standard', $this->l('Standard'));
+		$smarty->assign('fbPack_like_layout_box_count', $this->l('Box (Count)'));
+		$smarty->assign('fbPack_like_layout_button_count', $this->l('Button (Count)'));
+		$smarty->assign('fbPack_like_layout_button', $this->l('Button'));
+		$smarty->assign('fbPack_like_layout_description', $this->l('Determines the size and amount of social context next to the button.'));
+		$smarty->assign('fbPack_like_action_label', $this->l('Action Type'));
+		$smarty->assign('fbPack_like_action', Tools::getValue('fbPack_like_action', $this->_fbPack_like_action ));
+		$smarty->assign('fbPack_like_action_like', $this->l('Like'));
+		$smarty->assign('fbPack_like_action_recommend', $this->l('Recommend'));
+		$smarty->assign('fbPack_like_action_description', $this->l('The verb to display in the button'));
+
+
+
+//		$smarty->assign('fbPack_like_send_label', $this->l('Send Button'));
+//		$smarty->assign('fbPack_like_send', Tools::getValue('fbPack_like_send', $this->_fbPack_like_send));
+//		$smarty->assign('fbPack_like_send_description', $this->l('Include a Send button'));
+//		$smarty->assign('fbPack_like_submit', $this->l('Save settings for Like Button' ));
+
+
+
+		return $this->display ( __FILE__, '/tpl/content.tpl' );
+
+//		$this->_html = '<h2>' . $this->displayName . '</h2>';
+//		if (! empty ( $_POST )) {
+//			$this->_postValidation ();
+//			if (! sizeof ( $this->_postErrors ))
+//				$this->_postProcess ();
+//			else
+//				foreach ( $this->_postErrors as $err )
+//					$this->_html .= '<div class="alert error">' . $err . '</div>';
+//		} else
+//			$this->_html .= '<br />';
+//
+//		$this->_displaySocialPlugins();
+//		$this->_displayDonation();
+//		$this->_displayForm();
+//
+//		return $this->_html;
 	}
 	
 	/**
@@ -158,7 +201,7 @@ class FacebookPack extends Module {
 	public function hookXmlNamespace($params) {
 		global $smarty;
 		
-		return $this->display ( __FILE__, 'xml_namespace.tpl' );
+		return $this->display ( __FILE__, '/tpl/xml_namespace.tpl' );
 	}
 	
 	/**
@@ -526,13 +569,7 @@ class FacebookPack extends Module {
                     </fieldset>
 		</form><br />';
 	}
-	
-	private function _displaySocialPlugins() {
-		$this->_html .= '<img src="../modules/facebookpack/social_plugins.jpg" style="float:left; margin-right:15px;"><b>' . $this->l ( 'This module contains Facebook Social Plugins' ) . '</b><br /><br />
-		' . $this->l ( 'One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop.' ) . '<br />
-		' . $this->l ( 'Here you can choose to add four different Facebook social plugins: Like Button, Like Box, Comments and Login Button (Facebook Connect).') . '<br clear="all" /><br />';
-	}
-	
+
 	private function _displayForm() {
 		$this->_html .= '<form action="' . $_SERVER ['REQUEST_URI'] . '" method="post">
             <fieldset class="width3" style="width:850px">
