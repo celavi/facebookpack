@@ -1,4 +1,7 @@
 <h2>{$displayName}</h2>
+{if $settingUpdated}
+<div class="conf confirm"><img src="../img/admin/ok.gif" alt="{$settingUpdated}" /> {$settingUpdated}</div>
+{/if}
 <!-- social -->
 <img src="{$path}images/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$socialTitle}</b>
 <br />
@@ -16,8 +19,7 @@
         <legend><img src="{$path}images/like.png" />{$likeButton}</legend>
         <label>{$enablePlugin}</label>
         <div class="margin-form">
-            <input type="radio" name="fbPack_like_button" value="yes" {if $fbPack_like_button eq 'yes'}checked="checked"{/if} /> {$yes}
-            <input type="radio" name="fbPack_like_button" value="no" {if $fbPack_like_button eq 'no'}checked="checked"{/if} /> {$no}
+            <input type="checkbox" name="fbPack_like_button" value="1" {if $fbPack_like_button eq 1}checked="checked"{/if} />
             <p class="clear">{$fbPack_like_button_description}</p>
         </div>
         <label>{$fbPack_like_button_label}</label>
@@ -47,39 +49,24 @@
             </select>
             <p class="clear">{$fbPack_like_action_description}</p>
         </div>
-
-        {*<label>{$fbPack_like_send_label}</label>*}
-        {*<div class="margin-form">*}
-            {*<input type="radio" name="fbPack_like_send" value="yes" {if $fbPack_like_send eq 'yes'}checked="checked"{/if} /> {$yes}*}
-            {*<input type="radio" name="fbPack_like_send" value="no" {if $fbPack_like_send eq 'no'}checked="checked"{/if} /> {$no}*}
-            {*<p class="clear">{$fbPack_like_send_description}</p>*}
-        {*</div>*}
-
-        {*<label>' . $this->l ( 'Show Faces' ) . '</label>*}
-        {*<div class="margin-form">*}
-            {*<input type="checkbox" name="fbPack_like_faces" value="1" ' . (Tools::getValue ( 'fbPack_like_faces', $this->_fbPack_like_faces ) ? 'checked="checked"' : false) . ' />*}
-            {*<p class="clear">' . $this->l ( 'Show profile pictures below the button. (Standard layout only)' ) . '</p>*}
-        {*</div>*}
-        {*<label>' . $this->l ( 'Color Scheme' ) . '</label>*}
-        {*<div class="margin-form">*}
-            {*<select name="fbPack_like_color" style="width:150px">*}
-                {*<option value="light" ' . (Tools::getValue ( 'fbPack_like_color', $this->_fbPack_like_color ) == "light" ? 'selected="selected"' : "") . '>' . $this->l ( 'Light' ) . '</option>*}
-                {*<option value="dark" ' . (Tools::getValue ( 'fbPack_like_color', $this->_fbPack_like_color ) == "dark" ? 'selected="selected"' : "") . '>' . $this->l ( 'Dark' ) . '</option>*}
-            {*</select>*}
-            {*<p class="clear">' . $this->l ( 'The color scheme of the plugin.' ) . '</p>*}
-        {*</div>*}
-        {*<label>' . $this->l ( 'Font' ) . '</label>*}
-        {*<div class="margin-form">*}
-            {*<select name="fbPack_like_font" style="width:150px">*}
-                {*<option value="arial" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "arial" ? 'selected="selected"' : "") . '>' . $this->l ( 'Arial' ) . '</option>*}
-                {*<option value="lucida grande" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "lucida grande" ? 'selected="selected"' : "") . '>' . $this->l ( 'Lucida Grande' ) . '</option>*}
-                {*<option value="segoe ui" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "segoe ui" ? 'selected="selected"' : "") . '>' . $this->l ( 'Segoe Ui' ) . '</option>*}
-                {*<option value="tahoma" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "tahoma" ? 'selected="selected"' : "") . '>' . $this->l ( 'Tahoma' ) . '</option>*}
-                {*<option value="trebuchet ms" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "trebuchet ms" ? 'selected="selected"' : "") . '>' . $this->l ( 'Trebuchet MS' ) . '</option>*}
-                {*<option value="verdana" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "verdana" ? 'selected="selected"' : "") . '>' . $this->l ( 'Verdana' ) . '</option>*}
-            {*</select>*}
-            {*<p class="clear">' . $this->l ( 'The font of the plugin.' ) . '</p>*}
-        {*</div>*}
+        <label>{$fbPack_like_faces_label}</label>
+            <div class="margin-form">
+            <input type="checkbox" name="fbPack_like_faces" value="1" {if $fbPack_like_faces eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_like_faces_description}</p>
+        </div>
+        <label>{$fbPack_like_share_label}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_like_share" value="1" {if $fbPack_like_share eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_like_share_description}</p>
+        </div>
+        <label>{$fbPack_like_colorscheme_label}</label>
+        <div class="margin-form">
+            <select name="fbPack_like_colorscheme" style="width:150px">
+                <option value="light" {if $fbPack_like_colorscheme eq 'light'}selected="selected"{/if} >{$fbPack_like_colorscheme_light}</option>
+                <option value="dark" {if $fbPack_like_colorscheme eq 'dark'}selected="selected"{/if} >{$fbPack_like_colorscheme_dark}</option>
+            </select>
+            <p class="clear">{$fbPack_like_colorscheme_description}</p>
+        </div>
         <input type="submit" name="submitLikeButton" value="{$fbPack_like_submit}" class="button" />
     </fieldset>
 </form>

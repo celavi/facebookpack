@@ -13,24 +13,22 @@ if (! defined ( '_CAN_LOAD_FILES_' ))
  *
  */
 class FacebookPack extends Module {
-	const INSTALL_SQL_FILE = 'sql/install.sql';
-	const UNINSTALL_SQL_FILE = 'sql/uninstall.sql';
-	
-	private $_postErrors = array();
-	
-	private $_fbPack_app_id = '';
+	private $_validationErrors = array();
+
+    private $_fbPack_app_locale = 'en_US';
+    private $_fbPack_sdk_version = 'v2.3';
+
+    private $_fbPack_app_id = '';
 	private $_fbPack_app_secret = '';
-	private $_fbPack_app_locale = 'en_US';
 	
-	private $_fbPack_like_button = 'no';
+	private $_fbPack_like_button = 0;
 	private $_fbPack_like_url = '';
-	private $_fbPack_like_send = 'yes';
+	private $_fbPack_like_width = 300;
 	private $_fbPack_like_layout = 'standard';
-	private $_fbPack_like_width = 280;
-	private $_fbPack_like_faces = 0;
 	private $_fbPack_like_action = 'like';
-	private $_fbPack_like_color = 'light';
-	private $_fbPack_like_font = 'arial';
+	private $_fbPack_like_faces = 0;
+	private $_fbPack_like_share = 0;
+	private $_fbPack_like_colorscheme = 'light';
 	
 	private $_fbPack_like_box = 'no';
 	private $_fbPack_facebook_page_url = 'http://www.facebook.com/prestashop/';
@@ -68,20 +66,7 @@ class FacebookPack extends Module {
 	}
 	
 	public function install() {
-		if (!file_exists(dirname( __FILE__ ) . '/' . self::INSTALL_SQL_FILE ))
-			return (false);
-		else if (!$sql = file_get_contents(dirname( __FILE__ ) . '/' . self::INSTALL_SQL_FILE))
-			return (false);
-		$sql = str_replace('PREFIX_', _DB_PREFIX_, $sql);
-		$sql = preg_split("/;\s*[\r\n]+/", $sql);
-		foreach($sql as $query) {
-			if(trim ($query)) {
-				if(!Db::getInstance()->Execute(trim($query)))
-					return (false);
-			}
-		}
-
-		if (!parent::install() or !$this->registerHook('xmlNamespace') or !$this->registerHook('header') or
+		if (!parent::install() or !$this->registerHook('header') or
             !$this->registerHook('top') or !$this->registerHook('footer') or !$this->registerHook('leftColumn') or
             !$this->registerHook('extraLeft') or !$this->registerHook('productTab') or
             !$this->registerHook('productTabContent'))
@@ -90,27 +75,13 @@ class FacebookPack extends Module {
 		return true;
 	}
 	
-	public function uninstall() { 
-        if (!file_exists(dirname(__FILE__) . '/' . self::UNINSTALL_SQL_FILE))
-			return (false);
-		else if (!$sql = file_get_contents(dirname(__FILE__) . '/' . self::UNINSTALL_SQL_FILE))
-			return (false);
-        $sql = str_replace('PREFIX_', _DB_PREFIX_, $sql);
-		$sql = preg_split("/;\s*[\r\n]+/", $sql);
-		foreach ($sql as $query) {
-			if (trim($query)) {
-				if (!Db::getInstance()->Execute(trim($query)))
-					return (false);
-			}
-		}
-        
-        // general
+	public function uninstall() {
 		if (!Configuration::deleteByName('FBPACK_APP_ID') or !Configuration::deleteByName('FBPACK_APP_SECRET') or
 			!Configuration::deleteByName('FBPACK_APP_LOCALE') or !Configuration::deleteByName('FBPACK_LIKE_BUTTON') or
-			!Configuration::deleteByName('FBPACK_LIKE_URL') or !Configuration::deleteByName('FBPACK_LIKE_SEND') or
+			!Configuration::deleteByName('FBPACK_LIKE_URL') or !Configuration::deleteByName('FBPACK_LIKE_SHARE') or
 			!Configuration::deleteByName('FBPACK_LIKE_LAYOUT') or !Configuration::deleteByName('FBPACK_LIKE_WIDTH') or
 			!Configuration::deleteByName('FBPACK_LIKE_FACES') or !Configuration::deleteByName('FBPACK_LIKE_ACTION') or
-			!Configuration::deleteByName('FBPACK_LIKE_COLOR') or !Configuration::deleteByName('FBPACK_LIKE_FONT') or
+			!Configuration::deleteByName('FBPACK_LIKE_COLORSCHEME') or
 			!Configuration::deleteByName('FBPACK_LIKE_BOX') or !Configuration::deleteByName('FBPACK_FACEBOOK_PAGE_URL') or
 			!Configuration::deleteByName('FBPACK_BOX_WIDTH') or !Configuration::deleteByName('FBPACK_BOX_HEIGHT') or
 			!Configuration::deleteByName('FBPACK_BOX_COLOR') or !Configuration::deleteByName('FBPACK_BOX_FACES') or
@@ -130,20 +101,28 @@ class FacebookPack extends Module {
 	public function getContent() {
 		global $smarty;
 
+        if (!empty($_POST)) {
+            $this->_validateData();
+            $this->_processData();
+            $this->_refreshProperties();
+            $smarty->assign('settingUpdated', $this->l('Setting updated'));
+        }
+
 		$smarty->assign('displayName', $this->displayName);
 		$smarty->assign('path', $this->_path);
 		$smarty->assign('enablePlugin', $this->l('Enable Plugin'));
 		$smarty->assign('yes', $this->l('yes'));
 		$smarty->assign('no', $this->l('no'));
+
 		// social part
 		$smarty->assign('socialTitle', $this->l('This module contains Facebook Social Plugins'));
 		$smarty->assign('socialDescription_common', $this->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add four different Facebook social plugins.'));
-		$smarty->assign('socialDescription_simple', $this->l('Two simple plugins: Like Button, Like Box. And two which need Facebook Connect to work properly: Comments and Login Button.'));
-		$smarty->assign('socialDescription_connect', $this->l('Two plugins requires Facebook Connect to work properly: Comments and Login Button.'));
+		$smarty->assign('socialDescription_simple', $this->l('Two simple plugins: Like Button, Like Box.'));
+		$smarty->assign('socialDescription_complex', $this->l('Two plugins requires Facebook Connect to work properly: Comments and Login Button.'));
 		// like button
-		$smarty->assign('likeButton', $this->l('Like Button Configurator'));
+		$smarty->assign('likeButton', $this->l('Like Button'));
 		$smarty->assign('fbPack_like_button', Tools::getValue('fbPack_like_button', $this->_fbPack_like_button));
-		$smarty->assign('fbPack_like_button_description', $this->l('Enable or Disable Facebook Like Button'));
+		$smarty->assign('fbPack_like_button_description', $this->l('Check the checbox to enable Like Button'));
 		$smarty->assign('fbPack_like_button_label', $this->l('URL to Like'));
 		$smarty->assign('fbPack_like_url', Tools::getValue('fbPack_like_url', $this->_fbPack_like_url));
 		$smarty->assign('fbPack_like_url_placeholder', $this->l('The URL to like. Defaults to the current page'));
@@ -157,23 +136,26 @@ class FacebookPack extends Module {
 		$smarty->assign('fbPack_like_layout_box_count', $this->l('Box (Count)'));
 		$smarty->assign('fbPack_like_layout_button_count', $this->l('Button (Count)'));
 		$smarty->assign('fbPack_like_layout_button', $this->l('Button'));
-		$smarty->assign('fbPack_like_layout_description', $this->l('Determines the size and amount of social context next to the button.'));
+		$smarty->assign('fbPack_like_layout_description', $this->l('Determines the size and amount of social context next to the button'));
 		$smarty->assign('fbPack_like_action_label', $this->l('Action Type'));
 		$smarty->assign('fbPack_like_action', Tools::getValue('fbPack_like_action', $this->_fbPack_like_action ));
 		$smarty->assign('fbPack_like_action_like', $this->l('Like'));
 		$smarty->assign('fbPack_like_action_recommend', $this->l('Recommend'));
 		$smarty->assign('fbPack_like_action_description', $this->l('The verb to display in the button'));
+		$smarty->assign('fbPack_like_faces_label', $this->l('Show Friends\' Faces'));
+		$smarty->assign('fbPack_like_faces', Tools::getValue('fbPack_like_faces', $this->_fbPack_like_faces));
+		$smarty->assign('fbPack_like_faces_description', $this->l('Check the checkbox to display profile photos below the button (standard layout only)'));
+		$smarty->assign('fbPack_like_share_label', $this->l('Include Share Button'));
+		$smarty->assign('fbPack_like_share', Tools::getValue('fbPack_like_share', $this->_fbPack_like_share));
+		$smarty->assign('fbPack_like_share_description', $this->l('Check the checkbox to include a share button beside the Like button.'));
+		$smarty->assign('fbPack_like_colorscheme_label', $this->l('Color Scheme'));
+		$smarty->assign('fbPack_like_colorscheme', Tools::getValue('fbPack_like_colorscheme', $this->_fbPack_like_colorscheme));
+		$smarty->assign('fbPack_like_colorscheme_light', $this->l('Light'));
+		$smarty->assign('fbPack_like_colorscheme_dark', $this->l('Dark'));
+		$smarty->assign('fbPack_like_colorscheme_description', $this->l('The color scheme used by the plugin for any text outside of the button itself'));
+        $smarty->assign('fbPack_like_submit', $this->l('\'Like Button\' - update settings'));
 
-
-
-//		$smarty->assign('fbPack_like_send_label', $this->l('Send Button'));
-//		$smarty->assign('fbPack_like_send', Tools::getValue('fbPack_like_send', $this->_fbPack_like_send));
-//		$smarty->assign('fbPack_like_send_description', $this->l('Include a Send button'));
-//		$smarty->assign('fbPack_like_submit', $this->l('Save settings for Like Button' ));
-
-
-
-		return $this->display ( __FILE__, '/tpl/content.tpl' );
+		return $this->display (__FILE__, '/tpl/content.tpl' );
 
 //		$this->_html = '<h2>' . $this->displayName . '</h2>';
 //		if (! empty ( $_POST )) {
@@ -194,17 +176,6 @@ class FacebookPack extends Module {
 	}
 	
 	/**
-	 * Hook Xml Namespace for HTML tag
-	 * 
-	 * @param mixed $params
-	 */
-	public function hookXmlNamespace($params) {
-		global $smarty;
-		
-		return $this->display ( __FILE__, '/tpl/xml_namespace.tpl' );
-	}
-	
-	/**
 	 * Hook Header
 	 * 
 	 * @param mixed $params
@@ -212,17 +183,18 @@ class FacebookPack extends Module {
 	public function hookHeader($params) {
 		global $smarty;
 		
-		if ($this->_fbPack_comments == 'yes') {
-			$smarty->assign ( 'fbPack_comments', true );
-			$smarty->assign ( 'fbPack_app_id', $this->_fbPack_app_id );
-			$smarty->assign ( 'fbPack_app_locale', $this->_fbPack_app_locale );
-			$smarty->assign ( 'fbPack_comments_moderators', $this->_fbPack_comments_moderators );
-		}
-		
-		if ($this->_fbPack_login_button == 'yes') {
-			$smarty->assign ( 'fbPack_login_button', true );
-		}
-		return $this->display ( __FILE__, 'header.tpl' );
+//		if ($this->_fbPack_comments == 'yes') {
+//			$smarty->assign ( 'fbPack_comments', true );
+//			$smarty->assign ( 'fbPack_app_id', $this->_fbPack_app_id );
+//			$smarty->assign ( 'fbPack_app_locale', $this->_fbPack_app_locale );
+//			$smarty->assign ( 'fbPack_comments_moderators', $this->_fbPack_comments_moderators );
+//		}
+//
+//		if ($this->_fbPack_login_button == 'yes') {
+//			$smarty->assign ( 'fbPack_login_button', true );
+//		}
+
+		return $this->display(__FILE__, 'tpl/header.tpl');
 	}
 	
     /**
@@ -231,42 +203,43 @@ class FacebookPack extends Module {
      * @param array $params Parameters
      * @return string Content
      */
-    public function hookTop($params)
-    {
+    public function hookTop($params) {
         global $smarty, $cookie;
+
+        $smarty->assign('locale', $this->_fbPack_app_locale);
+        $smarty->assign('sdk_version', $this->_fbPack_sdk_version);
         
-        if ($this->_fbPack_login_button == 'yes') {
-        	// User is not logged in
-        	
-        	if (!$cookie->isLogged()) {
-        		$smarty->assign ( 'isLogged', false );
-        	} else {
-        		$smarty->assign ( 'isLogged', true );
-        		$smarty->assign ('fbUser', isset($cookie->fb_user_id) ? true : false);
-        		$smarty->assign ('fb_user_id', isset($cookie->fb_user_id) ? $cookie->fb_user_id : null);
-        	}
-        	/**
-        	
-        	
-            if(!empty($fb_user)){   
-                $smarty->assign ( 'fb_img', 'profile' );
-                $smarty->assign ( 'fb_user_id', $fb_user_id);
-            } else {
-                $url = $facebook->getLoginUrl(array(
-                    'display'   => 'popup',
-                    'scope'     => 'email,user_birthday',
-                    'redirect_uri' => _PS_BASE_URL_ . '/my-account.php',
-                    'next'      => _PS_BASE_URL_ . '/my-account.php'
-                ));
-                $smarty->assign ( 'fb_img', 'fb_connect.gif' );
-                $smarty->assign ( 'isLogged', !$cookie->isLogged() );
-                $smarty->assign ( 'fb_url', $url );
-            }
-            */
-            return $this->display(__FILE__, 'top.tpl');
-        }
-        
-        
+//        if ($this->_fbPack_login_button == 'yes') {
+//        	// User is not logged in
+//
+//        	if (!$cookie->isLogged()) {
+//        		$smarty->assign ( 'isLogged', false );
+//        	} else {
+//        		$smarty->assign ( 'isLogged', true );
+//        		$smarty->assign ('fbUser', isset($cookie->fb_user_id) ? true : false);
+//        		$smarty->assign ('fb_user_id', isset($cookie->fb_user_id) ? $cookie->fb_user_id : null);
+//        	}
+//        	/**
+//
+//
+//            if(!empty($fb_user)){
+//                $smarty->assign ( 'fb_img', 'profile' );
+//                $smarty->assign ( 'fb_user_id', $fb_user_id);
+//            } else {
+//                $url = $facebook->getLoginUrl(array(
+//                    'display'   => 'popup',
+//                    'scope'     => 'email,user_birthday',
+//                    'redirect_uri' => _PS_BASE_URL_ . '/my-account.php',
+//                    'next'      => _PS_BASE_URL_ . '/my-account.php'
+//                ));
+//                $smarty->assign ( 'fb_img', 'fb_connect.gif' );
+//                $smarty->assign ( 'isLogged', !$cookie->isLogged() );
+//                $smarty->assign ( 'fb_url', $url );
+//            }
+//            */
+//        }
+
+        return $this->display(__FILE__, 'tpl/top.tpl');
     }
     
 	/**
@@ -323,20 +296,18 @@ class FacebookPack extends Module {
 	 */
 	public function hookExtraLeft($params) {
 		global $smarty;
-		
-		// Only show if like box is enabled
-		if ($this->_fbPack_like_button == 'yes') {
+
+		if ($this->_fbPack_like_button) {
 			
-			$smarty->assign ( 'fbPack_like_url', $this->_fbPack_like_url );
-			$smarty->assign ( 'fbPack_like_send', ($this->_fbPack_like_send == 'yes') ? 'true' : 'false' );
-			$smarty->assign ( 'fbPack_like_layout', $this->_fbPack_like_layout );
-			$smarty->assign ( 'fbPack_like_width', $this->_fbPack_like_width );
-			$smarty->assign ( 'fbPack_like_faces', ($this->_fbPack_like_faces) ? 'true' : 'false' );
-			$smarty->assign ( 'fbPack_like_action', $this->_fbPack_like_action );
-			$smarty->assign ( 'fbPack_like_color', $this->_fbPack_like_color );
-			$smarty->assign ( 'fbPack_like_font', $this->_fbPack_like_font );
-			
-			return $this->display ( __FILE__, 'like_button.tpl' );
+			$smarty->assign('fbPack_like_url', $this->_fbPack_like_url);
+            $smarty->assign('fbPack_like_width', $this->_fbPack_like_width);
+            $smarty->assign('fbPack_like_layout', $this->_fbPack_like_layout);
+            $smarty->assign('fbPack_like_action', $this->_fbPack_like_action);
+            $smarty->assign('fbPack_like_faces', ($this->_fbPack_like_faces) ? 'true' : 'false');
+            $smarty->assign('fbPack_like_share', ($this->_fbPack_like_share) ? 'true' : 'false');
+            $smarty->assign('fbPack_like_colorscheme', $this->_fbPack_like_colorscheme);
+
+			return $this->display(__FILE__, 'tpl/like_button.tpl');
 		}
 	}
 	
@@ -384,179 +355,164 @@ class FacebookPack extends Module {
 	            </ol></div>';
 		}
 	}
-	
-	/**
-	 * Override files for total support of a plugin
-	 */
-	private function _overrideFiles() {
-		$templateDir = dirname(dirname(dirname(__FILE__))).'/themes/'._THEME_NAME_;
-		$headerTemplate 	= 	$templateDir .'/header.tpl';
-		$headerTemplateBack =   $templateDir . '/header.tpl.bak'; 
-		//if (!is_file($headerTemplate)) {
-		//	$this->_errors[] = Tools::displayError('Header template file is missing: ' . $headerTemplate);
-		//	return false;
-		//}		
-	}
-	
-	private function _postValidation() {
-		if (isset ( $_POST ['submitLikeButton'] )) {
-			if (empty ( $_POST ['fbPack_like_width'] ))
-				$this->_postErrors [] = $this->l ( 'The width of the Like Button is required.' );
-		}
-		
-		if (isset ( $_POST ['submitLikeBox'] )) {
-			if (empty ( $_POST ['fbPack_facebook_page_url'] ))
-				$this->_postErrors [] = $this->l ( 'The URL of the Facebook Page is required.' );
-			if (empty ( $_POST ['fbPack_box_width'] ))
-				$this->_postErrors [] = $this->l ( 'The width of the Like Box is required.' );
-			if (empty ( $_POST ['fbPack_box_height'] ))
-				$this->_postErrors [] = $this->l ( 'The height of the Like Box is required.' );
-		}
-		
-		if (isset ( $_POST ['submitComments'] )) {
-			if ($_POST ['fbPack_comments'] == 'yes') {
-				$config = Configuration::getMultiple ( array ('FBPACK_APP_ID' ) );
-				if (! isset ( $config ['FBPACK_APP_ID'] ))
-					$this->_postErrors [] = $this->l ( 'APP ID is required for Facebook Comments.' );
-				if (empty ( $_POST ['fbPack_comments_posts'] ))
-					$this->_postErrors [] = $this->l ( 'Number of posts is required.' );
-				if (empty ( $_POST ['fbPack_comments_width'] ))
-					$this->_postErrors [] = $this->l ( 'The width of the Comments Box is required.' );
-				if (empty ( $_POST ['fbPack_comments_moderators'] ))
-					$this->_postErrors [] = $this->l ( 'One Comments moderator is required.' );
-			}
-		}
-        
-        if (isset ( $_POST ['submitLogin'] )) {
-            if ($_POST ['fbPack_login_button'] == 'yes') {
-                $config = Configuration::getMultiple ( array ('FBPACK_APP_ID', 'FBPACK_APP_SECRET' ) );
-				if (! isset ( $config ['FBPACK_APP_ID'] ))
-					$this->_postErrors [] = $this->l ( 'APP ID is required for Facebook Login.' );
-				if (! isset ( $config ['FBPACK_APP_SECRET'] ))
-					$this->_postErrors [] = $this->l ( 'APP Secret is required for Facebook Login.' );
-            }
-        }
+
+	private function _validateData() {
+//		if (isset ( $_POST ['submitLikeButton'] )) {
+//			if (empty ( $_POST ['fbPack_like_width'] ))
+//				$this->_postErrors [] = $this->l ( 'The width of the Like Button is required.' );
+//		}
+//
+//		if (isset ( $_POST ['submitLikeBox'] )) {
+//			if (empty ( $_POST ['fbPack_facebook_page_url'] ))
+//				$this->_postErrors [] = $this->l ( 'The URL of the Facebook Page is required.' );
+//			if (empty ( $_POST ['fbPack_box_width'] ))
+//				$this->_postErrors [] = $this->l ( 'The width of the Like Box is required.' );
+//			if (empty ( $_POST ['fbPack_box_height'] ))
+//				$this->_postErrors [] = $this->l ( 'The height of the Like Box is required.' );
+//		}
+//
+//		if (isset ( $_POST ['submitComments'] )) {
+//			if ($_POST ['fbPack_comments'] == 'yes') {
+//				$config = Configuration::getMultiple ( array ('FBPACK_APP_ID' ) );
+//				if (! isset ( $config ['FBPACK_APP_ID'] ))
+//					$this->_postErrors [] = $this->l ( 'APP ID is required for Facebook Comments.' );
+//				if (empty ( $_POST ['fbPack_comments_posts'] ))
+//					$this->_postErrors [] = $this->l ( 'Number of posts is required.' );
+//				if (empty ( $_POST ['fbPack_comments_width'] ))
+//					$this->_postErrors [] = $this->l ( 'The width of the Comments Box is required.' );
+//				if (empty ( $_POST ['fbPack_comments_moderators'] ))
+//					$this->_postErrors [] = $this->l ( 'One Comments moderator is required.' );
+//			}
+//		}
+//
+//        if (isset ( $_POST ['submitLogin'] )) {
+//            if ($_POST ['fbPack_login_button'] == 'yes') {
+//                $config = Configuration::getMultiple ( array ('FBPACK_APP_ID', 'FBPACK_APP_SECRET' ) );
+//				if (! isset ( $config ['FBPACK_APP_ID'] ))
+//					$this->_postErrors [] = $this->l ( 'APP ID is required for Facebook Login.' );
+//				if (! isset ( $config ['FBPACK_APP_SECRET'] ))
+//					$this->_postErrors [] = $this->l ( 'APP Secret is required for Facebook Login.' );
+//            }
+//        }
                
 	}
 	
-	private function _postProcess() {
-		if (isset ( $_POST ['submitBasicSettings'] )) {
-			Configuration::updateValue ( 'FBPACK_APP_ID', $_POST ['fbPack_app_id'] );
-			Configuration::updateValue ( 'FBPACK_APP_SECRET', $_POST ['fbPack_app_secret'] );
-			Configuration::updateValue ( 'FBPACK_APP_LOCALE', $_POST ['fbPack_app_locale'] );
+	private function _processData() {
+
+//		if (isset ( $_POST ['submitBasicSettings'] )) {
+//			Configuration::updateValue ( 'FBPACK_APP_ID', $_POST ['fbPack_app_id'] );
+//			Configuration::updateValue ( 'FBPACK_APP_SECRET', $_POST ['fbPack_app_secret'] );
+//			Configuration::updateValue ( 'FBPACK_APP_LOCALE', $_POST ['fbPack_app_locale'] );
+//		}
+		
+		if (isset($_POST['submitLikeButton'])) {
+			Configuration::updateValue('FBPACK_LIKE_BUTTON', $_POST['fbPack_like_button']);
+			Configuration::updateValue('FBPACK_LIKE_URL', $_POST['fbPack_like_url']);
+            Configuration::updateValue('FBPACK_LIKE_WIDTH', $_POST['fbPack_like_width']);
+            Configuration::updateValue('FBPACK_LIKE_LAYOUT', $_POST['fbPack_like_layout']);
+            Configuration::updateValue('FBPACK_LIKE_ACTION', $_POST['fbPack_like_action'] );
+            Configuration::updateValue('FBPACK_LIKE_FACES', Tools::getValue('fbPack_like_faces'));
+            Configuration::updateValue('FBPACK_LIKE_SHARE', Tools::getValue('fbPack_like_share'));
+			Configuration::updateValue('FBPACK_LIKE_COLORSCHEME', $_POST['fbPack_like_colorscheme']);
 		}
+//
+//		if (isset ( $_POST ['submitLikeBox'] )) {
+//			Configuration::updateValue ( 'FBPACK_LIKE_BOX', $_POST ['fbPack_like_box'] );
+//			Configuration::updateValue ( 'FBPACK_FACEBOOK_PAGE_URL', $_POST ['fbPack_facebook_page_url'] );
+//			Configuration::updateValue ( 'FBPACK_BOX_WIDTH', $_POST ['fbPack_box_width'] );
+//			Configuration::updateValue ( 'FBPACK_BOX_HEIGHT', $_POST ['fbPack_box_height'] );
+//			Configuration::updateValue ( 'FBPACK_BOX_COLOR', $_POST ['fbPack_box_color'] );
+//			Configuration::updateValue ( 'FBPACK_BOX_FACES', Tools::getValue ( 'fbPack_box_faces' ) );
+//			Configuration::updateValue ( 'FBPACK_BOX_BORDER_COLOR', $_POST ['fbPack_box_border_color'] );
+//			Configuration::updateValue ( 'FBPACK_BOX_STREAM', Tools::getValue ( 'fbPack_box_stream' ) );
+//			Configuration::updateValue ( 'FBPACK_BOX_HEADER', Tools::getValue ( 'fbPack_box_header' ) );
+//		}
+//
+//		if (isset ( $_POST ['submitComments'] )) {
+//			Configuration::updateValue ( 'FBPACK_COMMENTS', $_POST ['fbPack_comments'] );
+//			Configuration::updateValue ( 'FBPACK_COMMENTS_POSTS', $_POST ['fbPack_comments_posts'] );
+//			Configuration::updateValue ( 'FBPACK_COMMENTS_WIDTH', $_POST ['fbPack_comments_width'] );
+//			Configuration::updateValue ( 'FBPACK_COMMENTS_COLOR', $_POST ['fbPack_comments_color'] );
+//			Configuration::updateValue ( 'FBPACK_COMMENTS_MODERATORS', $_POST ['fbPack_comments_moderators'] );
+//		}
+//
+//        if (isset ( $_POST ['submitLogin'] )) {
+//            Configuration::updateValue ( 'FBPACK_LOGIN_BUTTON', $_POST ['fbPack_login_button'] );
+//        }
 		
-		if (isset ( $_POST ['submitLikeButton'] )) {
-			Configuration::updateValue ( 'FBPACK_LIKE_BUTTON', $_POST ['fbPack_like_button'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_URL', $_POST ['fbPack_like_url'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_SEND', $_POST ['fbPack_like_send'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_LAYOUT', $_POST ['fbPack_like_layout'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_WIDTH', $_POST ['fbPack_like_width'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_FACES', Tools::getValue ( 'fbPack_like_faces' ) );
-			Configuration::updateValue ( 'FBPACK_LIKE_ACTION', $_POST ['fbPack_like_action'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_COLOR', $_POST ['fbPack_like_color'] );
-			Configuration::updateValue ( 'FBPACK_LIKE_FONT', $_POST ['fbPack_like_font'] );
-		}
-		
-		if (isset ( $_POST ['submitLikeBox'] )) {
-			Configuration::updateValue ( 'FBPACK_LIKE_BOX', $_POST ['fbPack_like_box'] );
-			Configuration::updateValue ( 'FBPACK_FACEBOOK_PAGE_URL', $_POST ['fbPack_facebook_page_url'] );
-			Configuration::updateValue ( 'FBPACK_BOX_WIDTH', $_POST ['fbPack_box_width'] );
-			Configuration::updateValue ( 'FBPACK_BOX_HEIGHT', $_POST ['fbPack_box_height'] );
-			Configuration::updateValue ( 'FBPACK_BOX_COLOR', $_POST ['fbPack_box_color'] );
-			Configuration::updateValue ( 'FBPACK_BOX_FACES', Tools::getValue ( 'fbPack_box_faces' ) );
-			Configuration::updateValue ( 'FBPACK_BOX_BORDER_COLOR', $_POST ['fbPack_box_border_color'] );
-			Configuration::updateValue ( 'FBPACK_BOX_STREAM', Tools::getValue ( 'fbPack_box_stream' ) );
-			Configuration::updateValue ( 'FBPACK_BOX_HEADER', Tools::getValue ( 'fbPack_box_header' ) );
-		}
-		
-		if (isset ( $_POST ['submitComments'] )) {
-			Configuration::updateValue ( 'FBPACK_COMMENTS', $_POST ['fbPack_comments'] );
-			Configuration::updateValue ( 'FBPACK_COMMENTS_POSTS', $_POST ['fbPack_comments_posts'] );
-			Configuration::updateValue ( 'FBPACK_COMMENTS_WIDTH', $_POST ['fbPack_comments_width'] );
-			Configuration::updateValue ( 'FBPACK_COMMENTS_COLOR', $_POST ['fbPack_comments_color'] );
-			Configuration::updateValue ( 'FBPACK_COMMENTS_MODERATORS', $_POST ['fbPack_comments_moderators'] );
-		}
-        
-        if (isset ( $_POST ['submitLogin'] )) {
-            Configuration::updateValue ( 'FBPACK_LOGIN_BUTTON', $_POST ['fbPack_login_button'] );
-        }
-		
-		$this->_html .= '<div class="conf confirm"><img src="../img/admin/ok.gif" alt="' . $this->l ( 'ok' ) . '" /> ' . $this->l ( 'Settings updated' ) . '</div>';
-		
-		$this->_refreshProperties ();
+//		$this->_refreshProperties ();
 	}
 	
 	private function _refreshProperties() {
 		// general
-		$config = Configuration::getMultiple ( array ('FBPACK_APP_ID', 'FBPACK_APP_SECRET', 'FBPACK_APP_LOCALE' ) );
-		if (isset ( $config ['FBPACK_APP_ID'] ))
-			$this->_fbPack_app_id = $config ['FBPACK_APP_ID'];
-		if (isset ( $config ['FBPACK_APP_SECRET'] ))
-			$this->_fbPack_app_secret = $config ['FBPACK_APP_SECRET'];
-		if (isset ( $config ['FBPACK_APP_LOCALE'] ))
-			$this->_fbPack_app_locale = $config ['FBPACK_APP_LOCALE'];
+//		$config = Configuration::getMultiple ( array ('FBPACK_APP_ID', 'FBPACK_APP_SECRET', 'FBPACK_APP_LOCALE' ) );
+//		if (isset ( $config ['FBPACK_APP_ID'] ))
+//			$this->_fbPack_app_id = $config ['FBPACK_APP_ID'];
+//		if (isset ( $config ['FBPACK_APP_SECRET'] ))
+//			$this->_fbPack_app_secret = $config ['FBPACK_APP_SECRET'];
+//		if (isset ( $config ['FBPACK_APP_LOCALE'] ))
+//			$this->_fbPack_app_locale = $config ['FBPACK_APP_LOCALE'];
 		
 		// like button
-		$config = Configuration::getMultiple ( array ('FBPACK_LIKE_BUTTON', 'FBPACK_LIKE_URL', 'FBPACK_LIKE_SEND', 'FBPACK_LIKE_LAYOUT', 'FBPACK_LIKE_WIDTH', 'FBPACK_LIKE_FACES', 'FBPACK_LIKE_ACTION', 'FBPACK_LIKE_COLOR', 'FBPACK_LIKE_FONT' ) );
-		if (isset ( $config ['FBPACK_LIKE_BUTTON'] ))
-			$this->_fbPack_like_button = $config ['FBPACK_LIKE_BUTTON'];
-		if (isset ( $config ['FBPACK_LIKE_URL'] ))
-			$this->_fbPack_like_url = $config ['FBPACK_LIKE_URL'];
-		if (isset ( $config ['FBPACK_LIKE_SEND'] ))
-			$this->_fbPack_like_send = $config ['FBPACK_LIKE_SEND'];
-		if (isset ( $config ['FBPACK_LIKE_LAYOUT'] ))
-			$this->_fbPack_like_layout = $config ['FBPACK_LIKE_LAYOUT'];
-		if (isset ( $config ['FBPACK_LIKE_WIDTH'] ))
-			$this->_fbPack_like_width = $config ['FBPACK_LIKE_WIDTH'];
-		if (isset ( $config ['FBPACK_LIKE_FACES'] ))
-			$this->_fbPack_like_faces = $config ['FBPACK_LIKE_FACES'];
-		if (isset ( $config ['FBPACK_LIKE_ACTION'] ))
-			$this->_fbPack_like_action = $config ['FBPACK_LIKE_ACTION'];
-		if (isset ( $config ['FBPACK_LIKE_COLOR'] ))
-			$this->_fbPack_like_color = $config ['FBPACK_LIKE_COLOR'];
-		if (isset ( $config ['FBPACK_LIKE_FONT'] ))
-			$this->_fbPack_like_font = $config ['FBPACK_LIKE_FONT'];
+		$config = Configuration::getMultiple(array('FBPACK_LIKE_BUTTON', 'FBPACK_LIKE_URL', 'FBPACK_LIKE_SHARE',
+            'FBPACK_LIKE_LAYOUT', 'FBPACK_LIKE_WIDTH', 'FBPACK_LIKE_FACES', 'FBPACK_LIKE_ACTION',
+            'FBPACK_LIKE_COLORSCHEME'));
+		if (isset($config['FBPACK_LIKE_BUTTON']))
+			$this->_fbPack_like_button = $config['FBPACK_LIKE_BUTTON'];
+		if (isset($config ['FBPACK_LIKE_URL']))
+			$this->_fbPack_like_url = $config['FBPACK_LIKE_URL'];
+		if (isset($config['FBPACK_LIKE_SHARE']))
+			$this->_fbPack_like_share = $config['FBPACK_LIKE_SHARE'];
+		if (isset($config['FBPACK_LIKE_LAYOUT']))
+			$this->_fbPack_like_layout = $config['FBPACK_LIKE_LAYOUT'];
+		if (isset($config['FBPACK_LIKE_WIDTH']))
+			$this->_fbPack_like_width = $config['FBPACK_LIKE_WIDTH'];
+		if (isset($config['FBPACK_LIKE_FACES']))
+			$this->_fbPack_like_faces = $config['FBPACK_LIKE_FACES'];
+		if (isset($config['FBPACK_LIKE_ACTION']))
+			$this->_fbPack_like_action = $config['FBPACK_LIKE_ACTION'];
+		if (isset($config['FBPACK_LIKE_COLORSCHEME']))
+			$this->_fbPack_like_colorscheme = $config['FBPACK_LIKE_COLORSCHEME'];
 		
 		// like button
-		$config = Configuration::getMultiple ( array ('FBPACK_LIKE_BOX', 'FBPACK_FACEBOOK_PAGE_URL', 'FBPACK_BOX_WIDTH', 'FBPACK_BOX_HEIGHT', 'FBPACK_BOX_COLOR', 'FBPACK_BOX_FACES', 'FBPACK_BOX_BORDER_COLOR', 'FBPACK_BOX_STREAM', 'FBPACK_BOX_HEADER' ) );
-		if (isset ( $config ['FBPACK_LIKE_BOX'] ))
-			$this->_fbPack_like_box = $config ['FBPACK_LIKE_BOX'];
-		if (isset ( $config ['FBPACK_FACEBOOK_PAGE_URL'] ))
-			$this->_fbPack_facebook_page_url = $config ['FBPACK_FACEBOOK_PAGE_URL'];
-		if (isset ( $config ['FBPACK_BOX_WIDTH'] ))
-			$this->_fbPack_box_width = $config ['FBPACK_BOX_WIDTH'];
-		if (isset ( $config ['FBPACK_BOX_HEIGHT'] ))
-			$this->_fbPack_box_height = $config ['FBPACK_BOX_HEIGHT'];
-		if (isset ( $config ['FBPACK_BOX_COLOR'] ))
-			$this->_fbPack_box_color = $config ['FBPACK_BOX_COLOR'];
-		if (isset ( $config ['FBPACK_BOX_FACES'] ))
-			$this->_fbPack_box_faces = $config ['FBPACK_BOX_FACES'];
-		if (isset ( $config ['FBPACK_BOX_BORDER_COLOR'] ))
-			$this->_fbPack_box_border_color = $config ['FBPACK_BOX_BORDER_COLOR'];
-		if (isset ( $config ['FBPACK_BOX_STREAM'] ))
-			$this->_fbPack_box_stream = $config ['FBPACK_BOX_STREAM'];
-		if (isset ( $config ['FBPACK_BOX_HEADER'] ))
-			$this->_fbPack_box_header = $config ['FBPACK_BOX_HEADER'];
+//		$config = Configuration::getMultiple ( array ('FBPACK_LIKE_BOX', 'FBPACK_FACEBOOK_PAGE_URL', 'FBPACK_BOX_WIDTH', 'FBPACK_BOX_HEIGHT', 'FBPACK_BOX_COLOR', 'FBPACK_BOX_FACES', 'FBPACK_BOX_BORDER_COLOR', 'FBPACK_BOX_STREAM', 'FBPACK_BOX_HEADER' ) );
+//		if (isset ( $config ['FBPACK_LIKE_BOX'] ))
+//			$this->_fbPack_like_box = $config ['FBPACK_LIKE_BOX'];
+//		if (isset ( $config ['FBPACK_FACEBOOK_PAGE_URL'] ))
+//			$this->_fbPack_facebook_page_url = $config ['FBPACK_FACEBOOK_PAGE_URL'];
+//		if (isset ( $config ['FBPACK_BOX_WIDTH'] ))
+//			$this->_fbPack_box_width = $config ['FBPACK_BOX_WIDTH'];
+//		if (isset ( $config ['FBPACK_BOX_HEIGHT'] ))
+//			$this->_fbPack_box_height = $config ['FBPACK_BOX_HEIGHT'];
+//		if (isset ( $config ['FBPACK_BOX_COLOR'] ))
+//			$this->_fbPack_box_color = $config ['FBPACK_BOX_COLOR'];
+//		if (isset ( $config ['FBPACK_BOX_FACES'] ))
+//			$this->_fbPack_box_faces = $config ['FBPACK_BOX_FACES'];
+//		if (isset ( $config ['FBPACK_BOX_BORDER_COLOR'] ))
+//			$this->_fbPack_box_border_color = $config ['FBPACK_BOX_BORDER_COLOR'];
+//		if (isset ( $config ['FBPACK_BOX_STREAM'] ))
+//			$this->_fbPack_box_stream = $config ['FBPACK_BOX_STREAM'];
+//		if (isset ( $config ['FBPACK_BOX_HEADER'] ))
+//			$this->_fbPack_box_header = $config ['FBPACK_BOX_HEADER'];
 		
 		// comments
-		$config = Configuration::getMultiple ( array ('FBPACK_COMMENTS', 'FBPACK_COMMENTS_POSTS', 'FBPACK_COMMENTS_WIDTH', 'FBPACK_COMMENTS_COLOR', 'FBPACK_COMMENTS_MODERATORS' ) );
-		if (isset ( $config ['FBPACK_COMMENTS'] ))
-			$this->_fbPack_comments = $config ['FBPACK_COMMENTS'];
-		if (isset ( $config ['FBPACK_COMMENTS_POSTS'] ))
-			$this->_fbPack_comments_posts = $config ['FBPACK_COMMENTS_POSTS'];
-		if (isset ( $config ['FBPACK_COMMENTS_WIDTH'] ))
-			$this->_fbPack_comments_width = $config ['FBPACK_COMMENTS_WIDTH'];
-		if (isset ( $config ['FBPACK_COMMENTS_COLOR'] ))
-			$this->_fbPack_comments_color = $config ['FBPACK_COMMENTS_COLOR'];
-		if (isset ( $config ['FBPACK_COMMENTS_MODERATORS'] ))
-			$this->_fbPack_comments_moderators = $config ['FBPACK_COMMENTS_MODERATORS'];
+//		$config = Configuration::getMultiple ( array ('FBPACK_COMMENTS', 'FBPACK_COMMENTS_POSTS', 'FBPACK_COMMENTS_WIDTH', 'FBPACK_COMMENTS_COLOR', 'FBPACK_COMMENTS_MODERATORS' ) );
+//		if (isset ( $config ['FBPACK_COMMENTS'] ))
+//			$this->_fbPack_comments = $config ['FBPACK_COMMENTS'];
+//		if (isset ( $config ['FBPACK_COMMENTS_POSTS'] ))
+//			$this->_fbPack_comments_posts = $config ['FBPACK_COMMENTS_POSTS'];
+//		if (isset ( $config ['FBPACK_COMMENTS_WIDTH'] ))
+//			$this->_fbPack_comments_width = $config ['FBPACK_COMMENTS_WIDTH'];
+//		if (isset ( $config ['FBPACK_COMMENTS_COLOR'] ))
+//			$this->_fbPack_comments_color = $config ['FBPACK_COMMENTS_COLOR'];
+//		if (isset ( $config ['FBPACK_COMMENTS_MODERATORS'] ))
+//			$this->_fbPack_comments_moderators = $config ['FBPACK_COMMENTS_MODERATORS'];
         
         
         // login
-		$config = Configuration::getMultiple ( array ('FBPACK_LOGIN_BUTTON' ) );
-        if (isset ( $config ['FBPACK_LOGIN_BUTTON'] ))
-			$this->_fbPack_login_button = $config ['FBPACK_LOGIN_BUTTON'];
+//		$config = Configuration::getMultiple ( array ('FBPACK_LOGIN_BUTTON' ) );
+//        if (isset ( $config ['FBPACK_LOGIN_BUTTON'] ))
+//			$this->_fbPack_login_button = $config ['FBPACK_LOGIN_BUTTON'];
 	}
 	
 	private function _displayDonation() {
@@ -756,18 +712,6 @@ class FacebookPack extends Module {
    						<option value="dark" ' . (Tools::getValue ( 'fbPack_like_color', $this->_fbPack_like_color ) == "dark" ? 'selected="selected"' : "") . '>' . $this->l ( 'Dark' ) . '</option>
    					</select>
                     <p class="clear">' . $this->l ( 'The color scheme of the plugin.' ) . '</p>
-                </div>
-                <label>' . $this->l ( 'Font' ) . '</label>
-                <div class="margin-form">
-                    <select name="fbPack_like_font" style="width:150px">
-   						<option value="arial" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "arial" ? 'selected="selected"' : "") . '>' . $this->l ( 'Arial' ) . '</option>
-   						<option value="lucida grande" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "lucida grande" ? 'selected="selected"' : "") . '>' . $this->l ( 'Lucida Grande' ) . '</option>
-   						<option value="segoe ui" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "segoe ui" ? 'selected="selected"' : "") . '>' . $this->l ( 'Segoe Ui' ) . '</option>
-   						<option value="tahoma" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "tahoma" ? 'selected="selected"' : "") . '>' . $this->l ( 'Tahoma' ) . '</option>
-   						<option value="trebuchet ms" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "trebuchet ms" ? 'selected="selected"' : "") . '>' . $this->l ( 'Trebuchet MS' ) . '</option>
-   						<option value="verdana" ' . (Tools::getValue ( 'fbPack_like_font', $this->_fbPack_like_font ) == "verdana" ? 'selected="selected"' : "") . '>' . $this->l ( 'Verdana' ) . '</option>
-   					</select>
-                    <p class="clear">' . $this->l ( 'The font of the plugin.' ) . '</p>
                 </div>
                 <input type="submit" name="submitLikeButton" value="' . $this->l ( 'Update settings for Like Button' ) . '" class="button" />
         	</fieldset>

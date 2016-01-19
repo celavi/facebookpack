@@ -4,7 +4,7 @@
 	<displayName><![CDATA[Facebook Pack]]></displayName>
 	<version><![CDATA[1.1]]></version>
 	<description><![CDATA[Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments]]></description>
-	<author><![CDATA[Ales Loncar | celavi.org]]></author>
+	<author><![CDATA[Ales Loncar]]></author>
 	<tab><![CDATA[social_networks]]></tab>
 	<is_configurable>1</is_configurable>
 	<need_instance>1</need_instance>
