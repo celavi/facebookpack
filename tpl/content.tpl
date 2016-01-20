@@ -2,6 +2,9 @@
 {if $settingUpdated}
 <div class="conf confirm"><img src="../img/admin/ok.gif" alt="{$settingUpdated}" /> {$settingUpdated}</div>
 {/if}
+{foreach $validationErrors as $error}
+    <div class="alert error">{$error}</div>
+{/foreach}
 <!-- social -->
 <img src="{$path}images/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$socialTitle}</b>
 <br />
