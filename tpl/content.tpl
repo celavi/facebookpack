@@ -16,16 +16,16 @@
 {$socialDescription_complex}
 <br clear="all" />
 <br />
-<!-- facebook like button -->
+<!-- like button -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/like.png" />{$likeButton}</legend>
+        <legend><img src="{$path}images/like_button.png" />{$likeButton}</legend>
         <label>{$enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="fbPack_like_button" value="1" {if $fbPack_like_button eq 1}checked="checked"{/if} />
             <p class="clear">{$fbPack_like_button_description}</p>
         </div>
-        <label>{$fbPack_like_button_label}</label>
+        <label>{$fbPack_like_url_label}</label>
         <div class="margin-form">
             <input style="width:500px;" type="text" name="fbPack_like_url" value="{$fbPack_like_url}" placeholder="{$fbPack_like_url_placeholder}" />
         </div>
@@ -53,7 +53,7 @@
             <p class="clear">{$fbPack_like_action_description}</p>
         </div>
         <label>{$fbPack_like_faces_label}</label>
-            <div class="margin-form">
+        <div class="margin-form">
             <input type="checkbox" name="fbPack_like_faces" value="1" {if $fbPack_like_faces eq 1}checked="checked"{/if} />
             <p class="clear">{$fbPack_like_faces_description}</p>
         </div>
@@ -71,5 +71,46 @@
             <p class="clear">{$fbPack_like_colorscheme_description}</p>
         </div>
         <input type="submit" name="submitLikeButton" value="{$fbPack_like_submit}" class="button" />
+    </fieldset>
+</form>
+<br />
+<!-- page plugin -->
+<form action="{$smarty.server.REQUEST_URI}" method="post">
+    <fieldset class="width3" style="width:850px">
+        <legend><img src="{$path}images/like_page.png" />{$pagePlugin}</legend>
+        <label>{$enablePlugin}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_plugin" value="1" {if $fbPack_page_plugin eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_page_plugin_description}</p>
+        </div>
+        <label>{$fbPack_page_url_label}</label>
+        <div class="margin-form">
+            <input style="width:500px;" type="text" name="fbPack_page_url" value="{$fbPack_page_url}" placeholder="{$fbPack_page_url_placeholder}" />
+        </div>
+        <label>{$fbPack_page_name_label}</label>
+        <div class="margin-form">
+            <input style="width:500px;" type="text" name="fbPack_page_name" value="{$fbPack_page_name}" placeholder="{$fbPack_page_name_placeholder}" />
+        </div>
+        <label>Tabs</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_tabs[]" value="timeline" {if $fbPack_page_tabs[0] eq 'timeline'}checked="checked"{/if} /> timeline<br />
+            <input type="checkbox" name="fbPack_page_tabs[]" value="events" {if $fbPack_page_tabs[0] eq 'events'}checked="checked"{/if} /> events<br />
+            <input type="checkbox" name="fbPack_page_tabs[]" value="messages" {if $fbPack_page_tabs[0] eq 'messages'}checked="checked"{/if} /> messages
+            <p class="clear">Check which tabs to render</p>
+        </div>
+        <label>Width</label>
+        <div class="margin-form">
+            <input style="width:500px;" type="text" name="fbPack_page_width" value="{$fbPack_page_width}" placeholder="{$fbPack_page_width_placeholder}" />
+            <p class="clear">{$fbPack_page_width_description}</p>
+        </div>
+        <label>Height</label>
+        <div class="margin-form">
+            <input style="width:500px;" type="text" name="fbPack_height_width" value="{$fbPack_height_width}" placeholder="{$fbPack_page_height_placeholder}" />
+            <p class="clear">{$fbPack_page_height_description}</p>
+        </div>
+
+        Use Small Header
+        Hide Cover Photo
+        Show Friend's Faces
     </fieldset>
 </form>
