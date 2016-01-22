@@ -33,6 +33,8 @@ class FacebookPack extends Module {
     private $_fbPack_page_plugin = 0;
     private $_fbPack_page_url = 'http://www.facebook.com/prestashop/';
     private $_fbPack_page_name = 'PrestaShop';
+    private $_fbPack_page_width = 180;
+    private $_fbPack_page_height = 70;
 
 
 //    private $_fbPack_like_box = 'no';
@@ -173,6 +175,21 @@ class FacebookPack extends Module {
         $smarty->assign('fbPack_page_name_label', $this->l('Facebook Page Name'));
         $smarty->assign('fbPack_page_name', $this->_fbPack_page_name);
         $smarty->assign('fbPack_page_name_placeholder', $this->l('The Name of the Facebook Page'));
+        $smarty->assign('fbPack_page_tabs_label', $this->l('Tabs'));
+        $smarty->assign('fbPack_page_tabs_timeline', $this->l('Timeline'));
+        $smarty->assign('fbPack_page_tabs_events', $this->l('Events'));
+        $smarty->assign('fbPack_page_tabs_messages', $this->l('Messages'));
+        $smarty->assign('fbPack_page_tabs_description', $this->l('Check which tabs to render'));
+        $smarty->assign('fbPack_page_width_label', $this->l('Width'));
+        $smarty->assign('fbPack_page_width', $this->_fbPack_page_width);
+        $smarty->assign('fbPack_page_width_placeholder', $this->l('The pixel width of the embed (Min. 180 to Max. 500)'));
+        $smarty->assign('fbPack_page_height_label', $this->l('Height'));
+        $smarty->assign('fbPack_page_height', $this->_fbPack_page_height);
+        $smarty->assign('fbPack_page_height_placeholder', $this->l('The pixel height of the embed (Min. 70)'));
+        $smarty->assign('fbPack_page_height_description', $this->l('Height in pixels'));
+
+
+
 
 
         return $this->display(__FILE__, '/tpl/content.tpl');

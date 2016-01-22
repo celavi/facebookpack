@@ -91,26 +91,47 @@
         <div class="margin-form">
             <input style="width:500px;" type="text" name="fbPack_page_name" value="{$fbPack_page_name}" placeholder="{$fbPack_page_name_placeholder}" />
         </div>
-        <label>Tabs</label>
+        <label>{$fbPack_page_tabs_label}</label>
         <div class="margin-form">
-            <input type="checkbox" name="fbPack_page_tabs[]" value="timeline" {if $fbPack_page_tabs[0] eq 'timeline'}checked="checked"{/if} /> timeline<br />
-            <input type="checkbox" name="fbPack_page_tabs[]" value="events" {if $fbPack_page_tabs[0] eq 'events'}checked="checked"{/if} /> events<br />
-            <input type="checkbox" name="fbPack_page_tabs[]" value="messages" {if $fbPack_page_tabs[0] eq 'messages'}checked="checked"{/if} /> messages
-            <p class="clear">Check which tabs to render</p>
+            <input type="checkbox" name="fbPack_page_tabs[]" value="timeline" {if $fbPack_page_tabs[0] eq 'timeline'}checked="checked"{/if} /> {$fbPack_page_tabs_timeline}<br />
+            <input type="checkbox" name="fbPack_page_tabs[]" value="events" {if $fbPack_page_tabs[1] eq 'events'}checked="checked"{/if} /> {$fbPack_page_tabs_events}<br />
+            <input type="checkbox" name="fbPack_page_tabs[]" value="messages" {if $fbPack_page_tabs[2] eq 'messages'}checked="checked"{/if} /> {$fbPack_page_tabs_messages}
+            <p class="clear">{$fbPack_page_tabs_description}</p>
         </div>
-        <label>Width</label>
+        <label>{$fbPack_page_width_label}</label>
         <div class="margin-form">
             <input style="width:500px;" type="text" name="fbPack_page_width" value="{$fbPack_page_width}" placeholder="{$fbPack_page_width_placeholder}" />
-            <p class="clear">{$fbPack_page_width_description}</p>
+            <p class="clear">{$fbPack_like_width_description}</p>
         </div>
-        <label>Height</label>
+        <label>{$fbPack_page_height_label}</label>
         <div class="margin-form">
-            <input style="width:500px;" type="text" name="fbPack_height_width" value="{$fbPack_height_width}" placeholder="{$fbPack_page_height_placeholder}" />
+            <input style="width:500px;" type="text" name="fbPack_page_height" value="{$fbPack_page_height}" placeholder="{$fbPack_page_height_placeholder}" />
             <p class="clear">{$fbPack_page_height_description}</p>
+        </div>
+        <label>{$fbPack_page_header_label}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_header" value="1" {if $fbPack_page_header eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_page_header_description}</p>
+        </div>
+        <label>{$fbPack_page_cover_label}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_cover" value="1" {if $fbPack_page_cover eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_page_cover_description}</p>
+        </div>
+        <label>{$fbPack_page_adapt_label}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_adapt" value="1" {if $fbPack_page_adapt eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_page_adapt_description}</p>
+        </div>
+        <label>{$fbPack_page_faces_label}</label>
+        <div class="margin-form">
+            <input type="checkbox" name="fbPack_page_faces" value="1" {if $fbPack_page_faces eq 1}checked="checked"{/if} />
+            <p class="clear">{$fbPack_page_faces_description}</p>
         </div>
 
         Use Small Header
         Hide Cover Photo
+        Adapt to plugin container width
         Show Friend's Faces
     </fieldset>
 </form>
