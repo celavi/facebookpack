@@ -1,0 +1,23 @@
+{
+    "name": "celav/facebookpack",
+    "description": "Facebook Pack for Prestashop",
+    "license": "MIT",
+    "authors": [{
+        "name": "Ales Loncar",
+        "email": "ales@celavi.org"
+    }],
+    "require": {
+        "facebook/php-sdk-v4": "^5.2",
+        "twig/twig": "^1.24"
+    },
+    "require-dev": {
+        "monolog/monolog": "^1.19",
+        "php-console/php-console": "^3.1",
+        "raveren/kint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Celavi\\": ["src/Celavi"]
+        }
+    }
+}
