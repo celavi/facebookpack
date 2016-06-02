@@ -15,19 +15,10 @@ require_once __DIR__.'/vendor/autoload.php';
  */
 class FacebookPack extends Module
 {
-    /**
-     * @var \Celavi\PrestaShop\FbPack\Common
-     */
-    private $fbPack = null;
-
     public function __construct()
     {
         $logger = \Celavi\PrestaShop\ModuleHandler::getInstance()->getLogger();
         $logger->info(__METHOD__);
-
-        if ($this->fbPack === null) {
-            $this->fbPack = new \Celavi\PrestaShop\FbPack\Common();
-        }
 
         $this->name = \Celavi\PrestaShop\FbPack\Common::NAME;
         $this->tab = \Celavi\PrestaShop\FbPack\Common::TAB;
@@ -35,8 +26,8 @@ class FacebookPack extends Module
         $this->version = \Celavi\PrestaShop\FbPack\Common::VERSION;
         parent::__construct();
 
-        $this->displayName = $this->l($this->fbPack->displayName);
-        $this->description = $this->l($this->fbPack->description);
+        $this->displayName = $this->l(\Celavi\PrestaShop\FbPack\Common::displayName);
+        $this->description = $this->l(\Celavi\PrestaShop\FbPack\Common::description);
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
     }
 
@@ -71,16 +62,17 @@ class FacebookPack extends Module
 
         $template = \Celavi\PrestaShop\ModuleHandler::getInstance()->getTemplate();
         $data = array(
-            'displayName' => $this->fbPack->displayName,
+            'displayName' => $this->displayName,
             'path' => $this->_path,
-            'enablePlugin' => $this->l('Enable Plugin'),
-            'yes' => $this->l('yes'),
-            'no' => $this->l('no'),
-            'socialTitle' => $this->fbPack->socialTitle,
-            'socialDescriptionCommon' => $this->fbPack->socialDescriptionCommon,
-            'socialDescriptionSimple' => $this->fbPack->socialDescriptionSimple,
-            'socialDescriptionComplex' => $this->fbPack->socialDescriptionComplex
+            'enablePlugin' => $this->l(\Celavi\PrestaShop\FbPack\Common::enablePlugin),
+            'yes' => $this->l(\Celavi\PrestaShop\FbPack\Common::yes),
+            'no' => $this->l(\Celavi\PrestaShop\FbPack\Common::no),
+            'socialTitle' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialTitle),
+            'socialDescriptionCommon' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionCommon),
+            'socialDescriptionSimple' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionSimple),
+            'socialDescriptionComplex' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionComplex),
+            'requestUri' => $_SERVER['REQUEST_URI'],
         );
-        return $template->render('content.html', $data);
+        return $template->render('plugin/content.html', $data);
     }
 }

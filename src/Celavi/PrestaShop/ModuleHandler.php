@@ -59,7 +59,7 @@ class ModuleHandler
             $baseDir = dirname(dirname(dirname(__DIR__)));
             $loader = new \Twig_Loader_Filesystem($baseDir.'/twig/templates');
             $template = new \Twig_Environment($loader, array(
-                //'cache' => __DIR__ . '/FbPack/twig/compilation_cache',
+                'cache' => $baseDir . '/twig/compilation_cache'
             ));
             $this->template = $template;
         }
