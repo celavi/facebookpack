@@ -3,9 +3,8 @@ if (!defined('_CAN_LOAD_FILES_')) {
     exit();
 }
 
-require_once __DIR__.'/vendor/autoload.php';
-
-// PrestaShop v1.4 doesn't use namespaces so we need to call classes with full names
+require_once __DIR__ . '/src/FbPack/Module.php';
+require_once __DIR__ . '/src/FbPack/Plugin/LikeButton.php';
 
 /**
  * Facebook Pack.
@@ -15,64 +14,106 @@ require_once __DIR__.'/vendor/autoload.php';
  */
 class FacebookPack extends Module
 {
+	/**
+	 * @var FbPack_Module
+	 */
+	private $fbPack = null;
+	
+	/**
+	 * @var FbPack_Plugin_LikeButton
+	 */
+	private $pluginLikeButton = null;
+
+	
     public function __construct()
     {
-        $logger = \Celavi\PrestaShop\ModuleHandler::getInstance()->getLogger();
-        $logger->info(__METHOD__);
-
-        $this->name = \Celavi\PrestaShop\FbPack\Common::NAME;
-        $this->tab = \Celavi\PrestaShop\FbPack\Common::TAB;
-        $this->author = \Celavi\PrestaShop\FbPack\Common::AUTHOR;
-        $this->version = \Celavi\PrestaShop\FbPack\Common::VERSION;
+        $this->name = FbPack_Module::NAME;;
+        $this->tab = FbPack_Module::TAB;
+        $this->author = FbPack_Module::AUTHOR;
+        $this->version = FbPack_Module::VERSION;
         parent::__construct();
+		$this->displayName = FbPack_Module::DISPLAY_NAME;
+        $this->description = FbPack_Module::DESCRIPTION;
+        $this->confirmUninstall = FbPack_Module::CONFIRM_UNINSTALL;
 
-        $this->displayName = $this->l(\Celavi\PrestaShop\FbPack\Common::displayName);
-        $this->description = $this->l(\Celavi\PrestaShop\FbPack\Common::description);
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
+		if ($this->fbPack === null) {
+			$this->fbPack = new FbPack_Module($this);
+		}
+		if ($this->pluginLikeButton === null) {
+			$this->pluginLikeButton = new FbPack_Plugin_LikeButton($this);
+		}
     }
 
     public function install()
     {
-        $logger = \Celavi\PrestaShop\ModuleHandler::getInstance()->getLogger();
-        $logger->info(__METHOD__);
-
-        if (!parent::install()) {
+        if (!parent::install() OR
+            !$this->registerHook('top') OR
+            !$this->updateValues()) {
             return false;
         }
 
         return true;
     }
+	
+	/**
+     * Returns module content for Top
+     *
+     * @param array $params Parameters
+     * @return string Content
+     */
+    public function hookTop($params)
+	{    		
+		global $smarty;
+		
+		$smarty->assign('locale', $this->fbPack->getLocale());
+		$smarty->assign('sdkVersion', FbPack_Module::FB_SDK);
+		
+        return $this->display(__FILE__, '/templates/hook/top.tpl');
+    }
+	
+	/**
+	 * Update Configuration Values
+	 * 
+	 * @return boolean
+	 */
+	protected function updateValues()
+	{	
+		return true;
+	}
 
-    public function uninstall()
+	public function uninstall()
     {
-        $logger = \Celavi\PrestaShop\ModuleHandler::getInstance()->getLogger();
-        $logger->info(__METHOD__);
-
-        if (!parent::uninstall()) {
+        if (!parent::uninstall() OR
+            !$this->uninstallValues()) {
             return false;
         }
 
         return true;
     }
+	
+	/**
+	 * Uninstall Configuration Values
+	 * 
+	 * @return boolean
+	 */
+	protected function uninstallValues()
+	{
+		return true;
+	}
 
-    public function getContent()
+	/**
+	 * 
+	 * @return string Content
+	 */
+	public function getContent()
     {
-        $logger = \Celavi\PrestaShop\ModuleHandler::getInstance()->getLogger();
-        $logger->info(__METHOD__);
-
-        $template = \Celavi\PrestaShop\ModuleHandler::getInstance()->getTemplate();
-        $data = array(
-            'displayName' => $this->displayName,
-            'path' => $this->_path,
-            'enablePlugin' => $this->l(\Celavi\PrestaShop\FbPack\Common::enablePlugin),
-            'yes' => $this->l(\Celavi\PrestaShop\FbPack\Common::yes),
-            'no' => $this->l(\Celavi\PrestaShop\FbPack\Common::no),
-            'socialTitle' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialTitle),
-            'socialDescriptionCommon' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionCommon),
-            'socialDescriptionSimple' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionSimple),
-            'socialDescriptionComplex' => $this->l(\Celavi\PrestaShop\FbPack\Common::socialDescriptionComplex),
-            'requestUri' => $_SERVER['REQUEST_URI'],
-        );
-        return $template->render('plugin/content.html', $data);
+        global $smarty;
+		
+		$smarty->assign('displayName', $this->displayName);
+        $smarty->assign('path', $this->_path);
+        $smarty->assign('common', $this->fbPack->getContent());
+		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
+		
+        return $this->display(__FILE__, '/templates/content/index.tpl');
     }
 }
