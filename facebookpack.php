@@ -18,13 +18,13 @@ class FacebookPack extends Module
 	 * @var FbPack_Module
 	 */
 	private $fbPack = null;
-	
+
 	/**
 	 * @var FbPack_Plugin_LikeButton
 	 */
 	private $pluginLikeButton = null;
 
-	
+
     public function __construct()
     {
         $this->name = FbPack_Module::NAME;;
@@ -48,13 +48,14 @@ class FacebookPack extends Module
     {
         if (!parent::install() OR
             !$this->registerHook('top') OR
-            !$this->updateValues()) {
+            !$this->registerHook('extraLeft') OR
+            !$this->installValues()) {
             return false;
         }
 
         return true;
     }
-	
+
 	/**
      * Returns module content for Top
      *
@@ -62,22 +63,41 @@ class FacebookPack extends Module
      * @return string Content
      */
     public function hookTop($params)
-	{    		
+	{
 		global $smarty;
-		
+
 		$smarty->assign('locale', $this->fbPack->getLocale());
 		$smarty->assign('sdkVersion', FbPack_Module::FB_SDK);
-		
+
         return $this->display(__FILE__, '/templates/hook/top.tpl');
     }
-	
+
+    /**
+     * Hook Extra Left
+     *
+     * @param mixed $params
+     */
+    public function hookExtraLeft($params) {
+        global $smarty;
+
+        if ($this->pluginLikeButton->isEnabled()) {
+            $smarty->assign('fbPlugin', $this->pluginLikeButton->getContentForHook());
+            //var_dump($this->pluginLikeButton->getContentForHook());
+            return $this->display(__FILE__, 'templates/hook/like-button.tpl');
+        }
+    }
+
 	/**
-	 * Update Configuration Values
-	 * 
+	 * Install Configuration Values
+	 *
 	 * @return boolean
 	 */
-	protected function updateValues()
-	{	
+	protected function installValues()
+	{
+        if (!$this->fbPack->install() OR
+            !$this->pluginLikeButton->install()) {
+            return false;
+        }
 		return true;
 	}
 
@@ -90,30 +110,53 @@ class FacebookPack extends Module
 
         return true;
     }
-	
+
 	/**
 	 * Uninstall Configuration Values
-	 * 
+	 *
 	 * @return boolean
 	 */
 	protected function uninstallValues()
 	{
+        if (!$this->fbPack->uninstall() OR
+            !$this->pluginLikeButton->uninstall()) {
+            return false;
+        }
+
 		return true;
 	}
 
 	/**
-	 * 
+	 *
 	 * @return string Content
 	 */
 	public function getContent()
     {
         global $smarty;
-		
+
 		$smarty->assign('displayName', $this->displayName);
         $smarty->assign('path', $this->_path);
         $smarty->assign('common', $this->fbPack->getContent());
 		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
-		
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = $this->getErrors();
+            if (count($errors) > 0) {
+                $smarty->assign('errors', $errors);
+            } else {
+                $smarty->assign('pluginSettingsUpdated', TRUE);
+            }
+        }
+
         return $this->display(__FILE__, '/templates/content/index.tpl');
+    }
+
+    private function getErrors()
+    {
+        $errors = array();
+        if (count($this->pluginLikeButton->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginLikeButton->getErrors());
+        }
+        return $errors;
     }
 }
