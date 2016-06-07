@@ -14,34 +14,24 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
     const COLORSCHEME   = 'FBPACK_LIKE_BUTTON_COLORSCHEME';
 
     /**
-     * @var Module
-     */
-    private $module = null;
-
-    /**
-     * @var integer
-     */
-    private $enabled = 0;
-
-    /**
      * @var string
      */
     private $url = '';
 
-	/**
-	 * @var integer
-	 */
-	private $width = 300;
+    /**
+     * @var integer
+     */
+    private $width = 300;
 
-	/**
-	 * @var string
-	 */
-	private $layout = 'standard';
+    /**
+     * @var string
+     */
+    private $layout = 'standard';
 
-	/**
-	 * @var string
-	 */
-	private $action = 'like';
+    /**
+     * @var string
+     */
+    private $action = 'like';
 
     /**
      * @var integer
@@ -59,20 +49,10 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
     private $colorscheme = 'light';
 
     /**
-     * @var Module $prestaModule
+     * Get Content for Module config
+     *
+     * @return array
      */
-    public function __construct($prestaModule)
-    {
-        if ($this->module === null) {
-            $this->module = $prestaModule;
-        }
-    }
-
-	/**
-	 * Get Content for Module config
-	 *
-	 * @return array
-	 */
     public function getContent()
     {
         $this->errors = array();
@@ -90,22 +70,22 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
             'urlLabel' => $this->module->l('URL to Like'),
             'url' => Tools::getValue('likeButton-url', Configuration::get(self::URL)),
             'urlPlaceholder' => $this->module->l('The URL to like. Defaults to the current page'),
-			'widthLabel' => $this->module->l('Width'),
-			'width' => Tools::getValue('likeButton-width', Configuration::get(self::WIDTH)),
-			'widthPlaceholder' => $this->module->l('The pixel width of the plugin'),
-			'widthDescription' => $this->module->l('Width in pixels'),
-			'layoutLabel' => $this->module->l('Layout'),
-			'layout' => Tools::getValue('likeButton-layout', Configuration::get(self::LAYOUT)),
-			'layoutStandard' => $this->module->l('Standard'),
-			'layoutBoxCount' => $this->module->l('Box (Count)'),
-			'layoutButtonCount' => $this->module->l('Button (Count)'),
-			'layoutButton' => $this->module->l('Button'),
-			'layoutDescription' => $this->module->l('Determines the size and amount of social context next to the button'),
-			'actionLabel' => $this->module->l('Action Type'),
-			'action' => Tools::getValue('likeButton-action', Configuration::get(self::ACTION)),
-			'actionLike' => $this->module->l('Like'),
-			'actionRecommend' => $this->module->l('Recommend'),
-			'actionDescription' => $this->module->l('The verb to display in the button'),
+            'widthLabel' => $this->module->l('Width'),
+            'width' => Tools::getValue('likeButton-width', Configuration::get(self::WIDTH)),
+            'widthPlaceholder' => $this->module->l('The pixel width of the plugin'),
+            'widthDescription' => $this->module->l('Width in pixels'),
+            'layoutLabel' => $this->module->l('Layout'),
+            'layout' => Tools::getValue('likeButton-layout', Configuration::get(self::LAYOUT)),
+            'layoutStandard' => $this->module->l('Standard'),
+            'layoutBoxCount' => $this->module->l('Box (Count)'),
+            'layoutButtonCount' => $this->module->l('Button (Count)'),
+            'layoutButton' => $this->module->l('Button'),
+            'layoutDescription' => $this->module->l('Determines the size and amount of social context next to the button'),
+            'actionLabel' => $this->module->l('Action Type'),
+            'action' => Tools::getValue('likeButton-action', Configuration::get(self::ACTION)),
+            'actionLike' => $this->module->l('Like'),
+            'actionRecommend' => $this->module->l('Recommend'),
+            'actionDescription' => $this->module->l('The verb to display in the button'),
             'facesLabel' => $this->module->l("Show Friends' Faces"),
             'faces' => Tools::getValue('likeButton-faces', Configuration::get(self::FACES)),
             'facesDescription' => $this->module->l('Check the checkbox to display profile photos below the button (standard layout only)'),
@@ -125,6 +105,7 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
 
     private function validateData()
     {
+		// @TODO add empty width
         if ($_POST['likeButton-layout'] != 'standard' && Tools::getValue('likeButton-faces')) {
             $this->errors[] = $this->module->l('Profile photos below the button are for standard layout only.');
         }
@@ -146,15 +127,15 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
      */
     public function install()
     {
-        if (!Configuration::updateValue(self::ENABLED, $this->enabled) OR
-            !Configuration::updateValue(self::URL, $this->url) OR
-            !Configuration::updateValue(self::WIDTH, $this->width) OR
-            !Configuration::updateValue(self::LAYOUT, $this->layout) OR
-            !Configuration::updateValue(self::ACTION, $this->action) OR
-            !Configuration::updateValue(self::FACES, $this->faces) OR
-            !Configuration::updateValue(self::SHARE, $this->share) OR
+        if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
+            !Configuration::updateValue(self::URL, $this->url) or
+            !Configuration::updateValue(self::WIDTH, $this->width) or
+            !Configuration::updateValue(self::LAYOUT, $this->layout) or
+            !Configuration::updateValue(self::ACTION, $this->action) or
+            !Configuration::updateValue(self::FACES, $this->faces) or
+            !Configuration::updateValue(self::SHARE, $this->share) or
             !Configuration::updateValue(self::COLORSCHEME, $this->colorscheme)) {
-                return false;
+            return false;
         }
 
         return true;
@@ -165,15 +146,15 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
      */
     public function uninstall()
     {
-        if (!Configuration::deleteByName(self::ENABLED) OR
-            !Configuration::deleteByName(self::URL) OR
-            !Configuration::deleteByName(self::WIDTH) OR
-            !Configuration::deleteByName(self::LAYOUT) OR
-            !Configuration::deleteByName(self::ACTION) OR
-            !Configuration::deleteByName(self::FACES) OR
-            !Configuration::deleteByName(self::SHARE) OR
+        if (!Configuration::deleteByName(self::ENABLED) or
+            !Configuration::deleteByName(self::URL) or
+            !Configuration::deleteByName(self::WIDTH) or
+            !Configuration::deleteByName(self::LAYOUT) or
+            !Configuration::deleteByName(self::ACTION) or
+            !Configuration::deleteByName(self::FACES) or
+            !Configuration::deleteByName(self::SHARE) or
             !Configuration::deleteByName(self::COLORSCHEME)) {
-                return false;
+            return false;
         }
 
         return true;

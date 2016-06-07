@@ -1,10 +1,10 @@
 <!-- Like button -->
 <div class="fb-like"
-    {if $fbPlugin.likeButtonUrl}data-href="{$fbPlugin.likeButtonUrl}"{/if}
-    {if $fbPlugin.likeButtonLayout eq "standard"}data-width="{$fbPlugin.likeButtonWidth}"{/if}
-    data-layout="{$fbPlugin.likeButtonLayout}"
-    data-action="{$fbPlugin.likeButtonAction}"
-    data-show-faces="{$fbPlugin.likeButtonFaces}"
-    data-share="{$fbPlugin.likeButtonShare}"
-    data-colorscheme="{$fbPlugin.likeButtonColorscheme}">
+    {if $FbPack.likeButtonUrl}data-href="{$FbPack.likeButtonUrl}"{/if}
+    {if $FbPack.likeButtonLayout eq "standard"}data-width="{$FbPack.likeButtonWidth}"{/if}
+    data-layout="{$FbPack.likeButtonLayout}"
+    data-action="{$FbPack.likeButtonAction}"
+    data-show-faces="{$FbPack.likeButtonFaces}"
+    data-share="{$FbPack.likeButtonShare}"
+    data-colorscheme="{$FbPack.likeButtonColorscheme}">
 </div>

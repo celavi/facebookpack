@@ -18,26 +18,10 @@ class FbPack_Module extends FbPack_Plugin_Abstract
     const LOCALE = 'FBPACK_LOCALE';
 
 	/**
-     * @var Module
-     */
-    private $module = null;
-
-	/**
 	 *
 	 * @var string
 	 */
 	private $locale = 'en_US';
-
-	/**
-	 *
-	 * @param Module $prestaModule
-	 */
-	public function __construct($prestaModule)
-    {
-        if ($this->module === null) {
-            $this->module = $prestaModule;
-        }
-    }
 
 	public function getContent()
 	{

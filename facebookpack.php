@@ -5,6 +5,7 @@ if (!defined('_CAN_LOAD_FILES_')) {
 
 require_once __DIR__ . '/src/FbPack/Module.php';
 require_once __DIR__ . '/src/FbPack/Plugin/LikeButton.php';
+require_once __DIR__ . '/src/FbPack/Plugin/PagePlugin.php';
 
 /**
  * Facebook Pack.
@@ -23,6 +24,12 @@ class FacebookPack extends Module
 	 * @var FbPack_Plugin_LikeButton
 	 */
 	private $pluginLikeButton = null;
+	
+	/**
+	 *
+	 * @var FbPack_Plugin_PagePlugin
+	 */
+	private $pluginPagePlugin = null;
 
 
     public function __construct()
@@ -41,6 +48,9 @@ class FacebookPack extends Module
 		}
 		if ($this->pluginLikeButton === null) {
 			$this->pluginLikeButton = new FbPack_Plugin_LikeButton($this);
+		}
+		if ($this->pluginPagePlugin === null) {
+			$this->pluginPagePlugin = new FbPack_Plugin_PagePlugin($this);
 		}
     }
 
@@ -81,8 +91,7 @@ class FacebookPack extends Module
         global $smarty;
 
         if ($this->pluginLikeButton->isEnabled()) {
-            $smarty->assign('fbPlugin', $this->pluginLikeButton->getContentForHook());
-            //var_dump($this->pluginLikeButton->getContentForHook());
+            $smarty->assign('FbPack', $this->pluginLikeButton->getContentForHook());
             return $this->display(__FILE__, 'templates/hook/like-button.tpl');
         }
     }
@@ -138,6 +147,7 @@ class FacebookPack extends Module
         $smarty->assign('path', $this->_path);
         $smarty->assign('common', $this->fbPack->getContent());
 		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
+		$smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = $this->getErrors();

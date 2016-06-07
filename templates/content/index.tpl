@@ -1,12 +1,14 @@
 <!-- templates/content/intex.tpl -->
 <h2>{$displayName}</h2>
-{if $pluginSettingsUpdated}
+{if isset($pluginSettingsUpdated)}
 <div class="conf confirm"><img src="../img/admin/ok.gif" alt="{$common.settingsUpdated}" /> {$common.settingsUpdated}</div>
 {/if}
 <!-- errors -->
-{foreach $errors as $error}
-    <div class="alert error">{$error}</div>
-{/foreach}
+{if isset($errors)}
+	{foreach $errors as $error}
+		<div class="alert error">{$error}</div>
+	{/foreach}
+{/if}
 <!-- social -->
 <img src="{$path}images/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$common.socialTitle}</b>
 <br />
@@ -17,3 +19,6 @@
 <br />
 <!-- like button -->
 {include file='./like-button.tpl'}
+<br />
+<!-- page plugin -->
+{include file='./page-plugin.tpl'}

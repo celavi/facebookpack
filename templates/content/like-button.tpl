@@ -1,4 +1,4 @@
-<!-- templates/content/like_button.tpl -->
+<!-- templates/content/like-button.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <fieldset class="width3" style="width:850px">
         <legend><img src="{$path}images/like_button.png" />{$likeButton.name}</legend>
@@ -55,4 +55,3 @@
         <input type="submit" name="likeButton-submit" value="{$likeButton.submit}" class="button" />
     </fieldset>
 </form>
-<br />
