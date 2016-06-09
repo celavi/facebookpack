@@ -105,9 +105,12 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
 
     private function validateData()
     {
-		// @TODO add empty width
+		$width = (int)Tools::getValue('likeButton-width');
+		if ($width <= 0) {
+			$this->errors[] = $this->module->l('Like Button: Invalid Width.');
+		}
         if ($_POST['likeButton-layout'] != 'standard' && Tools::getValue('likeButton-faces')) {
-            $this->errors[] = $this->module->l('Profile photos below the button are for standard layout only.');
+            $this->errors[] = $this->module->l('Like Button: Profile photos below the button are for standard layout only.');
         }
     }
 
@@ -115,7 +118,7 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
     {
         Configuration::updateValue(self::ENABLED, (int)Tools::getValue('likeButton-enabled'));
         Configuration::updateValue(self::URL, Tools::getValue('likeButton-url'));
-        Configuration::updateValue(self::WIDTH, Tools::getValue('likeButton-width'));
+        Configuration::updateValue(self::WIDTH, (int)Tools::getValue('likeButton-width'));
         Configuration::updateValue(self::LAYOUT, Tools::getValue('likeButton-layout'));
         Configuration::updateValue(self::ACTION, Tools::getValue('likeButton-action'));
         Configuration::updateValue(self::FACES, (int)Tools::getValue('likeButton-faces'));
@@ -158,14 +161,6 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
         }
 
         return true;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isEnabled()
-    {
-        return (Configuration::get(self::ENABLED) == 1) ? true : false;
     }
 
     /**

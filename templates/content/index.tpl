@@ -17,6 +17,8 @@
 <br /> {$common.socialDescriptionComplex}
 <br clear="all" />
 <br />
+<!-- Localization and Translation -->
+{include file='./localization.tpl'}
 <!-- like button -->
 {include file='./like-button.tpl'}
 <br />

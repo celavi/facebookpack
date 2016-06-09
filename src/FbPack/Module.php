@@ -13,18 +13,26 @@ class FbPack_Module extends FbPack_Plugin_Abstract
     const DESCRIPTION = 'Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments';
 	const CONFIRM_UNINSTALL = 'Are you sure you want to uninstall?';
 
-	const FB_SDK = 'v2.3';
+	const FB_SDK = 'v2.6';
 
     const LOCALE = 'FBPACK_LOCALE';
 
-	/**
-	 *
+	/*
 	 * @var string
 	 */
 	private $locale = 'en_US';
 
 	public function getContent()
 	{
+		$this->errors = array();
+        if (Tools::isSubmit('localization-submit')) {
+            $this->validateData();
+            if (count($this->errors) == 0) {
+                // update values
+                $this->updateValues();
+            }
+        }
+		
 		$ret = array(
 			'enablePlugin' => $this->module->l('Enable Plugin'),
             'yes' => $this->module->l('yes'),
@@ -33,9 +41,28 @@ class FbPack_Module extends FbPack_Plugin_Abstract
             'socialDescriptionCommon' => $this->module->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add four different Facebook social plugins.'),
             'socialDescriptionSimple' => $this->module->l('Two simple plugins: Like Button, Like Box.'),
             'socialDescriptionComplex' => $this->module->l('Two plugins requires Facebook Connect to work properly: Comments and Login Button.'),
-            'settingsUpdated' => $this->module->l('Settings updated')
+            'settingsUpdated' => $this->module->l('Settings updated'),
+			'localizationAndTranslation' => $this->module->l('Localization & Translation'),
+			'localizationLabel' => $this->module->l('Localization'),
+			'localization' => Tools::getValue('fbPack-locale', Configuration::get(self::LOCALE)),
+			'localizationPlaceholder' => 'en_US',
+			'localizationDescription'=> $this->module->l("Set appropriate localization used. You can read more about supported Locales and Languages here: <a href='http://developers.facebook.com/docs/internationalization/'>http://developers.facebook.com/docs/internationalization</a>"),
+			'localizationSubmit' => $this->module->l("'Localization & Translation' - update settings")
 		);
 		return $ret;
+	}
+	
+	private function validateData()
+    {
+		// locale
+		if (Tools::getValue('fbPack-locale') == '') {
+			$this->errors[] = $this->module->l('Localization & Translation: Invalid Localization.');
+		}
+    }
+	
+	private function updateValues()
+    {
+		Configuration::updateValue(self::LOCALE, Tools::getValue('fbPack-locale'));
 	}
 
     /**
@@ -68,6 +95,6 @@ class FbPack_Module extends FbPack_Plugin_Abstract
 	 */
 	public function getLocale()
 	{
-		return Tools::getValue('fbPack-locale', Configuration::get(self::LOCALE));
+		return Configuration::get(self::LOCALE);
 	}
 }

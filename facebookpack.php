@@ -56,9 +56,10 @@ class FacebookPack extends Module
 
     public function install()
     {
-        if (!parent::install() OR
-            !$this->registerHook('top') OR
-            !$this->registerHook('extraLeft') OR
+        if (!parent::install() or
+            !$this->registerHook('top') or
+            !$this->registerHook('extraLeft') or
+			!$this->registerHook('leftColumn') or
             !$this->installValues()) {
             return false;
         }
@@ -95,6 +96,20 @@ class FacebookPack extends Module
             return $this->display(__FILE__, 'templates/hook/like-button.tpl');
         }
     }
+	
+	/**
+     * Hook Left Column
+     *
+     * @param mixed $params
+     */
+    public function hookLeftColumn($params) {
+        global $smarty;
+		
+		if ($this->pluginPagePlugin->isEnabled()) {
+            $smarty->assign('FbPack', $this->pluginPagePlugin->getContentForHook());
+            return $this->display(__FILE__, 'templates/hook/page-plugin.tpl');
+        }
+	}
 
 	/**
 	 * Install Configuration Values
@@ -103,8 +118,9 @@ class FacebookPack extends Module
 	 */
 	protected function installValues()
 	{
-        if (!$this->fbPack->install() OR
-            !$this->pluginLikeButton->install()) {
+        if (!$this->fbPack->install() or
+            !$this->pluginLikeButton->install() or
+			!$this->pluginPagePlugin->install()) {
             return false;
         }
 		return true;
@@ -112,7 +128,7 @@ class FacebookPack extends Module
 
 	public function uninstall()
     {
-        if (!parent::uninstall() OR
+        if (!parent::uninstall() or
             !$this->uninstallValues()) {
             return false;
         }
@@ -127,8 +143,9 @@ class FacebookPack extends Module
 	 */
 	protected function uninstallValues()
 	{
-        if (!$this->fbPack->uninstall() OR
-            !$this->pluginLikeButton->uninstall()) {
+        if (!$this->fbPack->uninstall() or
+            !$this->pluginLikeButton->uninstall() or
+			!$this->pluginPagePlugin->uninstall()) {
             return false;
         }
 
@@ -164,8 +181,14 @@ class FacebookPack extends Module
     private function getErrors()
     {
         $errors = array();
+		if (count($this->fbPack->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->fbPack->getErrors());
+        }
         if (count($this->pluginLikeButton->getErrors()) > 0) {
             $errors = array_merge($errors, $this->pluginLikeButton->getErrors());
+        }
+		if (count($this->pluginPagePlugin->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginPagePlugin->getErrors());
         }
         return $errors;
     }

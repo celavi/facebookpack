@@ -17,9 +17,9 @@
         </div>
         <label>{$pagePlugin.tabsLabel}</label>
         <div class="margin-form">
-            <input type="checkbox" name="pagePlugin-tabs[]" value="timeline" {if $pagePlugin.tabs[0] eq 'timeline'}checked="checked"{/if} /> {$pagePlugin.tabsTimeline}<br />
-            <input type="checkbox" name="pagePlugin-tabs[]" value="events" {if $pagePlugin.tabs[1] eq 'events'}checked="checked"{/if} /> {$pagePlugin.tabsEvents}<br />
-            <input type="checkbox" name="pagePlugin-tabs[]" value="messages" {if $pagePlugin.tabs[2] eq 'messages'}checked="checked"{/if} /> {$pagePlugin.tabsMessages}
+            <input type="checkbox" name="pagePlugin-tabs[]" value="timeline" {if isset($pagePlugin.tabs[0]) && $pagePlugin.tabs[0] eq 'timeline'}checked="checked"{/if} /> {$pagePlugin.tabsTimeline}<br />
+            <input type="checkbox" name="pagePlugin-tabs[]" value="events" {if isset($pagePlugin.tabs[1]) && $pagePlugin.tabs[1] eq 'events'}checked="checked"{/if} /> {$pagePlugin.tabsEvents}<br />
+            <input type="checkbox" name="pagePlugin-tabs[]" value="messages" {if isset($pagePlugin.tabs[2]) && $pagePlugin.tabs[2] eq 'messages'}checked="checked"{/if} /> {$pagePlugin.tabsMessages}
             <p class="clear">{$pagePlugin.tabsDescription}</p>
         </div>
         <label>{$pagePlugin.widthLabel}</label>

@@ -36,10 +36,12 @@ abstract class FbPack_Plugin_Abstract implements FbPack_Plugin_Interface
     {
         return $this->errors;
     }
-
+    /**
+     * @return boolean
+     */
     public function isEnabled()
     {
-        return false;
+        return (Configuration::get(static::ENABLED) == 1) ? true : false;
     }
 
     public function getContentForHook()

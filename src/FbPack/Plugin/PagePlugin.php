@@ -18,7 +18,7 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 	/**
      * @var string
      */
-    private $url = 'http://www.facebook.com/prestashop/';
+    private $url = 'https://www.facebook.com/prestashop/';
 	
 	/**
      * @var string
@@ -28,7 +28,15 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 	/**
 	 * @var array
 	 */
-	private $tabs = array('timeline');
+	private $tabs = array(
+		0 => 'timeline'
+	);
+	
+	private $tabsMapping = array(
+		'timeline' => 0,
+		'events' => 1,
+		'messages' => 2
+	);
 	
 	/**
      * @var integer
@@ -82,6 +90,7 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 			'pageName' => Tools::getValue('pagePlugin-pageName', Configuration::get(self::PAGENAME)),
 			'pageNamePlaceholder' => $this->module->l('The Name of the Facebook Page'),
 			'tabsLabel' => $this->module->l('Tabs'),
+			'tabs' => Tools::jsonDecode(Configuration::get(self::TABS), true),
 			'tabsTimeline' => $this->module->l('timeline'),
 			'tabsEvents' => $this->module->l('events'),
 			'tabsMessages' => $this->module->l('messages'),
@@ -115,15 +124,47 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 	private function validateData()
     {
 		// URL
+		if (Tools::getValue('pagePlugin-url') == '') {
+			$this->errors[] = $this->module->l('Page Plugin: Invalid Facebook Page URL.');
+		}
 		// PageName
-        // Width
+		if (Tools::getValue('pagePlugin-pageName') == '') {
+			$this->errors[] = $this->module->l('Page Plugin: Invalid Facebook Page Name.');
+		}
+		// Width
+		$width = (int)Tools::getValue('pagePlugin-width');
+		if ($width <= 0) {
+			$this->errors[] = $this->module->l('Page Plugin: Invalid Width.');
+		}
 		// Height
+		$height = (int)Tools::getValue('pagePlugin-height');
+		if ($height <= 0) {
+			$this->errors[] = $this->module->l('Page Plugin: Invalid Height.');
+		}
 		// Tabs
+		if (Tools::getValue('pagePlugin-tabs') === false) {
+			$this->errors[] = $this->module->l('Page Plugin: Check at least one tab to render.');
+		}
     }
 
     private function updateValues()
     {
-        var_dump(Tools::getValue('pagePlugin-tabs'));
+		Configuration::updateValue(self::ENABLED, (int)Tools::getValue('pagePlugin-enabled'));
+		Configuration::updateValue(self::URL, Tools::getValue('pagePlugin-url'));
+		Configuration::updateValue(self::PAGENAME, Tools::getValue('pagePlugin-pageName'));
+		$tabs = Tools::getValue('pagePlugin-tabs');
+		$tabsMapped = array();
+		foreach ($tabs as $key => $value) {
+			$tabsMappedKey = $this->tabsMapping[$value];
+			$tabsMapped[$tabsMappedKey] = $value;
+		}
+		Configuration::updateValue(self::TABS, Tools::jsonEncode($tabsMapped));
+		Configuration::updateValue(self::WIDTH, (int)Tools::getValue('pagePlugin-width'));
+		Configuration::updateValue(self::HEIGHT, (int)Tools::getValue('pagePlugin-height'));
+		Configuration::updateValue(self::HEADER, (int)Tools::getValue('pagePlugin-header'));
+		Configuration::updateValue(self::COVER, (int)Tools::getValue('pagePlugin-cover'));
+		Configuration::updateValue(self::ADAPT, (int)Tools::getValue('pagePlugin-adapt'));
+		Configuration::updateValue(self::FACES, (int)Tools::getValue('pagePlugin-faces'));
     }
 
 	public function install()
@@ -131,7 +172,7 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 		if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
             !Configuration::updateValue(self::URL, $this->url) or
 			!Configuration::updateValue(self::PAGENAME, $this->pageName) or
-			!Configuration::updateValue(self::TABS, $this->tabse) or
+			!Configuration::updateValue(self::TABS, Tools::jsonEncode($this->tabs)) or
             !Configuration::updateValue(self::WIDTH, $this->width) or
 			!Configuration::updateValue(self::HEIGHT, $this->height) or
 			!Configuration::updateValue(self::HEADER, $this->header) or	
@@ -160,5 +201,33 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
         }
 
         return true;
+	}
+	
+	/**
+     * @return array
+     */
+    public function getContentForHook()
+    {
+		$useSmallHeader = (Configuration::get(self::HEADER) == 1) ? 'true' : 'false';
+        $hideCover = (Configuration::get(self::COVER) == 1) ? 'true' : 'false';
+		$AdaptWidth = (Configuration::get(self::ADAPT) == 1) ? 'true' : 'false';
+		$showFaces = (Configuration::get(self::FACES) == 1) ? 'true' : 'false';
+		
+		$tabsArray = Tools::jsonDecode(Configuration::get(self::TABS), true);
+		$tabs = implode(',', $tabsArray);
+
+        $ret = array(
+            'pagePluginUrl' => Configuration::get(self::URL),
+			'pagePluginPageName' => Configuration::get(self::PAGENAME),
+			'pagePluginTabs' => $tabs,
+            'pagePluginWidth' => Configuration::get(self::WIDTH),
+            'pagePluginHeight' => Configuration::get(self::HEIGHT),
+            'pagePluginSmallHeader' => $useSmallHeader,
+			'pagePluginHideCover' => $hideCover,
+			'pagePluginAdaptWidth' => $AdaptWidth,
+			'pagePluginShowFaces' => $showFaces
+        );
+		
+		return $ret;
 	}
 }
