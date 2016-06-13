@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>facebookpack</name>
-	<displayName><![CDATA[Facebook Pack]]></displayName>
+	<name>facebooksocialplugins</name>
+	<displayName><![CDATA[Facebook Social Plugins]]></displayName>
 	<version><![CDATA[1.4]]></version>
-	<description><![CDATA[Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments]]></description>
+	<description><![CDATA[Facebook Social Plugins for Prestashop: Like Button, Save Button, Page Plugin]]></description>
 	<author><![CDATA[Ales Loncar]]></author>
 	<tab><![CDATA[social_networks]]></tab>
 	<confirmUninstall>Are you sure you want to uninstall?</confirmUninstall>

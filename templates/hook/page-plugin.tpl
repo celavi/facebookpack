@@ -1,3 +1,4 @@
+<!-- Page plugin -->
 <div class="fb-page" 
 	 data-href="{$FbPack.pagePluginUrl}" 
 	 data-tabs="{$FbPack.pagePluginTabs}" 

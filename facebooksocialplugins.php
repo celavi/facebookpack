@@ -6,18 +6,19 @@ if (!defined('_CAN_LOAD_FILES_')) {
 require_once __DIR__ . '/src/FbPack/Module.php';
 require_once __DIR__ . '/src/FbPack/Plugin/LikeButton.php';
 require_once __DIR__ . '/src/FbPack/Plugin/PagePlugin.php';
+require_once __DIR__ . '/src/FbPack/Plugin/SaveButton.php';
 
 /**
- * Facebook Pack.
+ * Facebook Social Plugins.
  *
- * Facebook Pack contains Facebook Social Plugins which let you see what your friends have liked,
- * commented on or shared on sites across the web.
+ * Facebook Social Plugins let you see what your friends have liked,
+ * commented on or shared on sites across the web
  */
-class FacebookPack extends Module
+class FacebookSocialPlugins extends Module
 {
 	/**
 	 * @var FbPack_Module
-	 */
+	 */ 
 	private $fbPack = null;
 
 	/**
@@ -30,6 +31,11 @@ class FacebookPack extends Module
 	 * @var FbPack_Plugin_PagePlugin
 	 */
 	private $pluginPagePlugin = null;
+	
+	/**
+	 * @var FbPack_Plugin_SaveButton
+	 */
+	private $pluginSaveButton = null;
 
 
     public function __construct()
@@ -51,6 +57,9 @@ class FacebookPack extends Module
 		}
 		if ($this->pluginPagePlugin === null) {
 			$this->pluginPagePlugin = new FbPack_Plugin_PagePlugin($this);
+		}
+		if ($this->pluginSaveButton === null) {
+			$this->pluginSaveButton = new FbPack_Plugin_SaveButton($this);
 		}
     }
 
@@ -90,11 +99,20 @@ class FacebookPack extends Module
      */
     public function hookExtraLeft($params) {
         global $smarty;
+		
+		$html = '';
 
         if ($this->pluginLikeButton->isEnabled()) {
             $smarty->assign('FbPack', $this->pluginLikeButton->getContentForHook());
-            return $this->display(__FILE__, 'templates/hook/like-button.tpl');
+            $html .= $this->display(__FILE__, 'templates/hook/like-button.tpl');
         }
+		
+		if ($this->pluginSaveButton->isEnabled()) {
+            $smarty->assign('FbPack', $this->pluginSaveButton->getContentForHook());
+            $html .= $this->display(__FILE__, 'templates/hook/save-button.tpl');
+        }
+		
+		return $html;
     }
 	
 	/**
@@ -120,7 +138,8 @@ class FacebookPack extends Module
 	{
         if (!$this->fbPack->install() or
             !$this->pluginLikeButton->install() or
-			!$this->pluginPagePlugin->install()) {
+			!$this->pluginPagePlugin->install() or 
+			!$this->pluginSaveButton->install()) {
             return false;
         }
 		return true;
@@ -145,7 +164,8 @@ class FacebookPack extends Module
 	{
         if (!$this->fbPack->uninstall() or
             !$this->pluginLikeButton->uninstall() or
-			!$this->pluginPagePlugin->uninstall()) {
+			!$this->pluginPagePlugin->uninstall() or
+			!$this->pluginSaveButton->uninstall()) {
             return false;
         }
 
@@ -165,6 +185,7 @@ class FacebookPack extends Module
         $smarty->assign('common', $this->fbPack->getContent());
 		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
 		$smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
+		$smarty->assign('saveButton', $this->pluginSaveButton->getContent());
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = $this->getErrors();

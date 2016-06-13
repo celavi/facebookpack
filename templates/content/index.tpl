@@ -13,14 +13,17 @@
 <img src="{$path}images/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$common.socialTitle}</b>
 <br />
 <br /> {$common.socialDescriptionCommon}
-<br /> {$common.socialDescriptionSimple}
-<br /> {$common.socialDescriptionComplex}
+<br /> {$common.socialDescriptionPlugins}
 <br clear="all" />
 <br />
 <!-- Localization and Translation -->
 {include file='./localization.tpl'}
+<br />
 <!-- like button -->
 {include file='./like-button.tpl'}
+<br />
+<!-- save button -->
+{include file='./save-button.tpl'}
 <br />
 <!-- page plugin -->
 {include file='./page-plugin.tpl'}

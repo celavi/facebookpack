@@ -4,13 +4,13 @@ require_once __DIR__ . '/Plugin/Abstract.php';
 
 class FbPack_Module extends FbPack_Plugin_Abstract
 {
-    const NAME = 'facebookpack';
+    const NAME = 'facebooksocialplugins';
     const TAB = 'social_networks';
     const AUTHOR = 'Ales Loncar';
     const VERSION = 1.4;
 
-	const DISPLAY_NAME = 'Facebook Pack';
-    const DESCRIPTION = 'Facebook Pack contains Facebook Social Plugins: Like Button, Like Box, Login Button, Facebook Comments';
+	const DISPLAY_NAME = 'Facebook Social Plugins';
+    const DESCRIPTION = 'Facebook Social Plugins for Prestashop: Like Button, Save Button, Page Plugin';
 	const CONFIRM_UNINSTALL = 'Are you sure you want to uninstall?';
 
 	const FB_SDK = 'v2.6';
@@ -38,9 +38,8 @@ class FbPack_Module extends FbPack_Plugin_Abstract
             'yes' => $this->module->l('yes'),
             'no' => $this->module->l('no'),
             'socialTitle' => $this->module->l('This module contains Facebook Social Plugins'),
-            'socialDescriptionCommon' => $this->module->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add four different Facebook social plugins.'),
-            'socialDescriptionSimple' => $this->module->l('Two simple plugins: Like Button, Like Box.'),
-            'socialDescriptionComplex' => $this->module->l('Two plugins requires Facebook Connect to work properly: Comments and Login Button.'),
+            'socialDescriptionCommon' => $this->module->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add five different Facebook social plugins.'),
+            'socialDescriptionPlugins' => $this->module->l('Supported plugins: Like Button, Page Plugin, Save Button, Share Button, Comments.'),
             'settingsUpdated' => $this->module->l('Settings updated'),
 			'localizationAndTranslation' => $this->module->l('Localization & Translation'),
 			'localizationLabel' => $this->module->l('Localization'),
