@@ -34,7 +34,7 @@ class FbPack_Plugin_SaveButton extends FbPack_Plugin_Abstract
             'description' => $this->module->l("Check the checbox to enable 'Save Button'"),
             'urlLabel' => $this->module->l('Link to save'),
             'url' => Tools::getValue('saveButton-url', Configuration::get(self::URL)),
-            'urlPlaceholder' => $this->module->l('The absolute link of the page that will be saved. Defaults to the current link/address.'),
+            'urlPlaceholder' => $this->module->l('Product catalog URI or web URL. Defaults to the current link/address.'),
 			'sizeLabel' => $this->module->l('Button Size'),
 			'size' => Tools::getValue('saveButton-size', Configuration::get(self::SIZE)),
 			'sizeSmall' => $this->module->l('small'),

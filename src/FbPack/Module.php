@@ -10,7 +10,7 @@ class FbPack_Module extends FbPack_Plugin_Abstract
     const VERSION = 1.4;
 
 	const DISPLAY_NAME = 'Facebook Social Plugins';
-    const DESCRIPTION = 'Facebook Social Plugins for Prestashop: Like Button, Save Button, Page Plugin';
+    const DESCRIPTION = 'Facebook Social Plugins for Prestashop: Like Button, Save Button, Share Button, Page Plugin and Commments Plugin.';
 	const CONFIRM_UNINSTALL = 'Are you sure you want to uninstall?';
 
 	const FB_SDK = 'v2.6';
@@ -39,7 +39,7 @@ class FbPack_Module extends FbPack_Plugin_Abstract
             'no' => $this->module->l('no'),
             'socialTitle' => $this->module->l('This module contains Facebook Social Plugins'),
             'socialDescriptionCommon' => $this->module->l('One of the easiest ways to make your online presence more social is by adding Facebook social plugins to your shop. Here you can choose to add five different Facebook social plugins.'),
-            'socialDescriptionPlugins' => $this->module->l('Supported plugins: Like Button, Page Plugin, Save Button, Share Button, Comments.'),
+            'socialDescriptionPlugins' => $this->module->l('Supported plugins: Like Button, Save Button, Share Button, Page Plugin and Comments Plugin.'),
             'settingsUpdated' => $this->module->l('Settings updated'),
 			'localizationAndTranslation' => $this->module->l('Localization & Translation'),
 			'localizationLabel' => $this->module->l('Localization'),

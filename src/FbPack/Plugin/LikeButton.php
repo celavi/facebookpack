@@ -96,7 +96,7 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
             'colorscheme' => Tools::getValue('likeButton-colorscheme', Configuration::get(self::COLORSCHEME)),
             'colorschemeLight' => $this->module->l('Light'),
             'colorschemeDark' => $this->module->l('Dark'),
-            'colorschemeDescription' => $this->module->l('The color scheme used by the plugin for any text outside of the button itself'),
+            'colorschemeDescription' => $this->module->l('The color scheme used by the plugin for any text outside of the button itself. Can be "light" or "dark".'),
             'submit' => $this->module->l("'Like Button' - update settings")
         );
 

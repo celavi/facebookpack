@@ -16,6 +16,9 @@
 <br /> {$common.socialDescriptionPlugins}
 <br clear="all" />
 <br />
+<!-- Donate -->
+{include file='./donate.tpl'}
+<br />
 <!-- Localization and Translation -->
 {include file='./localization.tpl'}
 <br />
@@ -25,5 +28,11 @@
 <!-- save button -->
 {include file='./save-button.tpl'}
 <br />
+<!-- share button -->
+{include file='./share-button.tpl'}
+<br />
 <!-- page plugin -->
 {include file='./page-plugin.tpl'}
+<br />
+<!-- comments plugin -->
+{include file='./comments-plugin.tpl'}

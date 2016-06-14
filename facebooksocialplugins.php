@@ -7,6 +7,8 @@ require_once __DIR__ . '/src/FbPack/Module.php';
 require_once __DIR__ . '/src/FbPack/Plugin/LikeButton.php';
 require_once __DIR__ . '/src/FbPack/Plugin/PagePlugin.php';
 require_once __DIR__ . '/src/FbPack/Plugin/SaveButton.php';
+require_once __DIR__ . '/src/FbPack/Plugin/ShareButton.php';
+require_once __DIR__ . '/src/FbPack/Plugin/CommentsPlugin.php';
 
 /**
  * Facebook Social Plugins.
@@ -27,24 +29,35 @@ class FacebookSocialPlugins extends Module
 	private $pluginLikeButton = null;
 	
 	/**
-	 *
-	 * @var FbPack_Plugin_PagePlugin
-	 */
-	private $pluginPagePlugin = null;
-	
-	/**
 	 * @var FbPack_Plugin_SaveButton
 	 */
 	private $pluginSaveButton = null;
+	
+	
+	/**
+	 * @var FbPack_Plugin_ShareButton
+	 */
+	private $pluginShareButton = null;
+	
+	/**
+	 * @var FbPack_Plugin_PagePlugin
+	 */
+	private $pluginPagePlugin = null;
 
-
+	/**
+	 * @var FbPack_Plugin_CommentsPlugin
+	 */
+	private $pluginCommentsPlugin = null;
+	
     public function __construct()
     {
         $this->name = FbPack_Module::NAME;;
         $this->tab = FbPack_Module::TAB;
         $this->author = FbPack_Module::AUTHOR;
         $this->version = FbPack_Module::VERSION;
+		
         parent::__construct();
+		
 		$this->displayName = FbPack_Module::DISPLAY_NAME;
         $this->description = FbPack_Module::DESCRIPTION;
         $this->confirmUninstall = FbPack_Module::CONFIRM_UNINSTALL;
@@ -55,11 +68,17 @@ class FacebookSocialPlugins extends Module
 		if ($this->pluginLikeButton === null) {
 			$this->pluginLikeButton = new FbPack_Plugin_LikeButton($this);
 		}
+		if ($this->pluginSaveButton === null) {
+			$this->pluginSaveButton = new FbPack_Plugin_SaveButton($this);
+		}
+		if ($this->pluginShareButton === null) {
+			$this->pluginShareButton = new FbPack_Plugin_ShareButton($this);
+		}
 		if ($this->pluginPagePlugin === null) {
 			$this->pluginPagePlugin = new FbPack_Plugin_PagePlugin($this);
 		}
-		if ($this->pluginSaveButton === null) {
-			$this->pluginSaveButton = new FbPack_Plugin_SaveButton($this);
+		if ($this->pluginCommentsPlugin === null) {
+			$this->pluginCommentsPlugin = new FbPack_Plugin_CommentsPlugin($this);
 		}
     }
 
@@ -69,6 +88,8 @@ class FacebookSocialPlugins extends Module
             !$this->registerHook('top') or
             !$this->registerHook('extraLeft') or
 			!$this->registerHook('leftColumn') or
+			!$this->registerHook('productTab') or
+            !$this->registerHook('productTabContent') or
             !$this->installValues()) {
             return false;
         }
@@ -94,6 +115,8 @@ class FacebookSocialPlugins extends Module
 
     /**
      * Hook Extra Left
+	 * 
+	 * Currently there is no option to sort plugins in this hook
      *
      * @param mixed $params
      */
@@ -112,6 +135,11 @@ class FacebookSocialPlugins extends Module
             $html .= $this->display(__FILE__, 'templates/hook/save-button.tpl');
         }
 		
+		if ($this->pluginShareButton->isEnabled()) {
+            $smarty->assign('FbPack', $this->pluginShareButton->getContentForHook());
+            $html .= $this->display(__FILE__, 'templates/hook/share-button.tpl');
+        }
+		
 		return $html;
     }
 	
@@ -128,6 +156,34 @@ class FacebookSocialPlugins extends Module
             return $this->display(__FILE__, 'templates/hook/page-plugin.tpl');
         }
 	}
+	
+	/**
+     * Hook Tab on product page
+     *
+     * @param mixed $params
+     */
+    public function hookProductTab($params) {
+        global $smarty;
+		
+		if ($this->pluginCommentsPlugin->isEnabled()) {
+            $smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
+            return $this->display(__FILE__, 'templates/hook/tab-comments.tpl');
+        }
+    }
+
+    /**
+     * Hook Content of tab on product page
+     *
+     * @param mixed $params
+     */
+    public function hookProductTabContent($params) {
+        global $smarty;
+		
+		if ($this->pluginCommentsPlugin->isEnabled()) {
+            $smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
+            return $this->display(__FILE__, 'templates/hook/tab-comments-content.tpl');
+        }
+    }
 
 	/**
 	 * Install Configuration Values
@@ -138,8 +194,10 @@ class FacebookSocialPlugins extends Module
 	{
         if (!$this->fbPack->install() or
             !$this->pluginLikeButton->install() or
-			!$this->pluginPagePlugin->install() or 
-			!$this->pluginSaveButton->install()) {
+			!$this->pluginSaveButton->install() or
+			!$this->pluginShareButton->install() or
+			!$this->pluginPagePlugin->install() or
+			!$this->pluginCommentsPlugin->install()) {
             return false;
         }
 		return true;
@@ -164,8 +222,10 @@ class FacebookSocialPlugins extends Module
 	{
         if (!$this->fbPack->uninstall() or
             !$this->pluginLikeButton->uninstall() or
+			!$this->pluginSaveButton->uninstall() or
+			!$this->pluginShareButton->uninstall() or 
 			!$this->pluginPagePlugin->uninstall() or
-			!$this->pluginSaveButton->uninstall()) {
+			!$this->pluginCommentsPlugin->uninstall()) {
             return false;
         }
 
@@ -184,8 +244,10 @@ class FacebookSocialPlugins extends Module
         $smarty->assign('path', $this->_path);
         $smarty->assign('common', $this->fbPack->getContent());
 		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
-		$smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
 		$smarty->assign('saveButton', $this->pluginSaveButton->getContent());
+		$smarty->assign('shareButton', $this->pluginShareButton->getContent());
+		$smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
+		$smarty->assign('commentsPlugin', $this->pluginCommentsPlugin->getContent());
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = $this->getErrors();
@@ -210,6 +272,9 @@ class FacebookSocialPlugins extends Module
         }
 		if (count($this->pluginPagePlugin->getErrors()) > 0) {
             $errors = array_merge($errors, $this->pluginPagePlugin->getErrors());
+        }
+		if (count($this->pluginCommentsPlugin->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginCommentsPlugin->getErrors());
         }
         return $errors;
     }

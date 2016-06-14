@@ -3,7 +3,7 @@
 	<name>facebooksocialplugins</name>
 	<displayName><![CDATA[Facebook Social Plugins]]></displayName>
 	<version><![CDATA[1.4]]></version>
-	<description><![CDATA[Facebook Social Plugins for Prestashop: Like Button, Save Button, Page Plugin]]></description>
+	<description><![CDATA[Facebook Social Plugins for Prestashop: Like Button, Save Button, Share Button, Page Plugin and Commments Plugin.]]></description>
 	<author><![CDATA[Ales Loncar]]></author>
 	<tab><![CDATA[social_networks]]></tab>
 	<confirmUninstall>Are you sure you want to uninstall?</confirmUninstall>
