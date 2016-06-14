@@ -90,6 +90,8 @@ class FbPack_Plugin_ShareButton extends FbPack_Plugin_Abstract
 			!Configuration::deleteByName(self::MOBILE)) {
             return false;
         }
+		
+		return true;
 	}
 	
 	/**

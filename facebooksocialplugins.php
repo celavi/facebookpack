@@ -33,7 +33,6 @@ class FacebookSocialPlugins extends Module
 	 */
 	private $pluginSaveButton = null;
 	
-	
 	/**
 	 * @var FbPack_Plugin_ShareButton
 	 */

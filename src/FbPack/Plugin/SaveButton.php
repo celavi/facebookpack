@@ -71,6 +71,8 @@ class FbPack_Plugin_SaveButton extends FbPack_Plugin_Abstract
             !Configuration::deleteByName(self::SIZE)) {
             return false;
         }
+		
+		return true;
 	}
 	
 	/**
