@@ -1,4 +1,7 @@
 <?php
+if (!defined('_CAN_LOAD_FILES_'))
+	exit;
+
 if (!defined('_PS_VERSION_'))
   exit;
 
@@ -53,6 +56,8 @@ class FacebookSocialPlugins extends Module
         $this->tab = FbPack_Module::TAB;
         $this->author = FbPack_Module::AUTHOR;
         $this->version = FbPack_Module::VERSION;
+		$this->need_instance = 0;
+		$this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.5.6.3');
 		
         parent::__construct();
 		
@@ -60,29 +65,30 @@ class FacebookSocialPlugins extends Module
         $this->description = FbPack_Module::DESCRIPTION;
         $this->confirmUninstall = FbPack_Module::CONFIRM_UNINSTALL;
 
-//		if ($this->fbPack === null) {
-//			$this->fbPack = new FbPack_Module($this);
-//		}
-//		if ($this->pluginLikeButton === null) {
-//			$this->pluginLikeButton = new FbPack_Plugin_LikeButton($this);
-//		}
-//		if ($this->pluginSaveButton === null) {
-//			$this->pluginSaveButton = new FbPack_Plugin_SaveButton($this);
-//		}
-//		if ($this->pluginShareButton === null) {
-//			$this->pluginShareButton = new FbPack_Plugin_ShareButton($this);
-//		}
-//		if ($this->pluginPagePlugin === null) {
-//			$this->pluginPagePlugin = new FbPack_Plugin_PagePlugin($this);
-//		}
-//		if ($this->pluginCommentsPlugin === null) {
-//			$this->pluginCommentsPlugin = new FbPack_Plugin_CommentsPlugin($this);
-//		}
+		if ($this->fbPack === null) {
+			$this->fbPack = new FbPack_Module($this);
+		}
+		if ($this->pluginLikeButton === null) {
+			$this->pluginLikeButton = new FbPack_Plugin_LikeButton($this);
+		}
+		if ($this->pluginSaveButton === null) {
+			$this->pluginSaveButton = new FbPack_Plugin_SaveButton($this);
+		}
+		if ($this->pluginShareButton === null) {
+			$this->pluginShareButton = new FbPack_Plugin_ShareButton($this);
+		}
+		if ($this->pluginPagePlugin === null) {
+			$this->pluginPagePlugin = new FbPack_Plugin_PagePlugin($this);
+		}
+		if ($this->pluginCommentsPlugin === null) {
+			$this->pluginCommentsPlugin = new FbPack_Plugin_CommentsPlugin($this);
+		}
     }
-
+	
     public function install()
     {
-        if (!parent::install()) {
+        if (!parent::install() or 
+			!$this->installValues()) {
             //!$this->registerHook('top') or
             //!$this->registerHook('extraLeft') or
 			//!$this->registerHook('leftColumn') or
@@ -130,14 +136,14 @@ class FacebookSocialPlugins extends Module
 	 */
 	protected function uninstallValues()
 	{
-//        if (!$this->fbPack->uninstall() or
-//            !$this->pluginLikeButton->uninstall() or
-//			!$this->pluginSaveButton->uninstall() or
-//			!$this->pluginShareButton->uninstall() or 
-//			!$this->pluginPagePlugin->uninstall() or
-//			!$this->pluginCommentsPlugin->uninstall()) {
-//            return false;
-//        }
+        if (!$this->fbPack->uninstall() or
+            !$this->pluginLikeButton->uninstall() or
+			!$this->pluginSaveButton->uninstall() or
+			!$this->pluginShareButton->uninstall() or 
+			!$this->pluginPagePlugin->uninstall() or
+			!$this->pluginCommentsPlugin->uninstall()) {
+            return false;
+        }
 
 		return true;
 	}
@@ -239,17 +245,15 @@ class FacebookSocialPlugins extends Module
 	 */
 	public function getContent()
     {
-//        global $smarty;
-//
-//		$smarty->assign('displayName', $this->displayName);
-//        $smarty->assign('path', $this->_path);
-//        $smarty->assign('common', $this->fbPack->getContent());
-//		$smarty->assign('likeButton', $this->pluginLikeButton->getContent());
-//		$smarty->assign('saveButton', $this->pluginSaveButton->getContent());
-//		$smarty->assign('shareButton', $this->pluginShareButton->getContent());
-//		$smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
-//		$smarty->assign('commentsPlugin', $this->pluginCommentsPlugin->getContent());
-//
+		$this->context->smarty->assign('displayName', $this->displayName);
+		$this->context->smarty->assign('path', $this->_path);
+		$this->context->smarty->assign('common', $this->fbPack->getContent());
+		$this->context->smarty->assign('likeButton', $this->pluginLikeButton->getContent());
+		$this->context->smarty->assign('saveButton', $this->pluginSaveButton->getContent());
+		$this->context->smarty->assign('shareButton', $this->pluginShareButton->getContent());
+		$this->context->smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
+		$this->context->smarty->assign('commentsPlugin', $this->pluginCommentsPlugin->getContent());
+
 //        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 //            $errors = $this->getErrors();
 //            if (count($errors) > 0) {
@@ -258,8 +262,8 @@ class FacebookSocialPlugins extends Module
 //                $smarty->assign('pluginSettingsUpdated', TRUE);
 //            }
 //        }
-//
-//        return $this->display(__FILE__, '/templates/content/index.tpl');
+		
+		return $this->display(__FILE__, '/templates/content/index.tpl');
     }
 
 //    private function getErrors()

@@ -7,7 +7,7 @@ class FbPack_Module extends FbPack_Plugin_Abstract
     const NAME = 'facebooksocialplugins';
     const TAB = 'social_networks';
     const AUTHOR = 'Ales Loncar';
-    const VERSION = 1.4;
+    const VERSION = 1.5;
 
 	const DISPLAY_NAME = 'Facebook Social Plugins';
     const DESCRIPTION = 'Facebook Social Plugins for Prestashop: Like Button, Save Button, Share Button, Page Plugin and Commments Plugin.';
