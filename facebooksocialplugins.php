@@ -87,18 +87,13 @@ class FacebookSocialPlugins extends Module
 	
     public function install()
     {
-        if (!parent::install() or 
-			!$this->installValues()) {
-            //!$this->registerHook('top') or
-            //!$this->registerHook('extraLeft') or
-			//!$this->registerHook('leftColumn') or
-			//!$this->registerHook('productTab') or
-            //!$this->registerHook('productTabContent') or
-            //!$this->installValues()) {
-            return false;
-        }
-
-        return true;
+		return parent::install() && 
+			$this->installValues() && 
+			$this->registerHook('displayTop') &&
+			$this->registerHook('displayLeftColumnProduct') &&
+			$this->registerHook('displayLeftColumn') &&
+			$this->registerHook('displayProductTab') &&
+			$this->registerHook('displayProductTabContent');			
     }
 	
 	/**
@@ -108,25 +103,13 @@ class FacebookSocialPlugins extends Module
 	 */
 	protected function installValues()
 	{
-        if (!$this->fbPack->install() or
-            !$this->pluginLikeButton->install() or
-			!$this->pluginSaveButton->install() or
-			!$this->pluginShareButton->install() or
-			!$this->pluginPagePlugin->install() or
-			!$this->pluginCommentsPlugin->install()) {
-            return false;
-        }
-		return true;
+		return $this->fbPack->install() && $this->pluginLikeButton->install() && $this->pluginSaveButton->install() &&
+			$this->pluginShareButton->install() && $this->pluginPagePlugin->install() && $this->pluginCommentsPlugin->install();
 	}
 
 	public function uninstall()
     {
-        if (!parent::uninstall() or
-            !$this->uninstallValues()) {
-            return false;
-        }
-
-        return true;
+		return parent::uninstall() && $this->uninstallValues();
     }
 
 	/**
@@ -136,107 +119,90 @@ class FacebookSocialPlugins extends Module
 	 */
 	protected function uninstallValues()
 	{
-        if (!$this->fbPack->uninstall() or
-            !$this->pluginLikeButton->uninstall() or
-			!$this->pluginSaveButton->uninstall() or
-			!$this->pluginShareButton->uninstall() or 
-			!$this->pluginPagePlugin->uninstall() or
-			!$this->pluginCommentsPlugin->uninstall()) {
-            return false;
-        }
-
-		return true;
+		return $this->fbPack->uninstall() && $this->pluginLikeButton->uninstall() && $this->pluginSaveButton->uninstall() &&
+			$this->pluginShareButton->uninstall() && $this->pluginPagePlugin->uninstall() && $this->pluginCommentsPlugin->uninstall();
 	}
 
 	/**
-     * Returns module content for Top
+     * Hook displayTop
      *
      * @param array $params Parameters
      * @return string Content
      */
-    public function hookTop($params)
+    public function hookDisplayTop($params)
 	{
-//		global $smarty;
-//
-//		$smarty->assign('locale', $this->fbPack->getLocale());
-//		$smarty->assign('sdkVersion', FbPack_Module::FB_SDK);
-//
-//        return $this->display(__FILE__, '/templates/hook/top.tpl');
+		$this->context->smarty->assign('locale', $this->fbPack->getLocale());
+		$this->context->smarty->assign('sdkVersion', FbPack_Module::FB_SDK);
+
+        return $this->display(__FILE__, 'top.tpl');
     }
 
     /**
-     * Hook Extra Left
+     * Hook displayRightColumnProduct
 	 * 
 	 * Currently there is no option to sort plugins in this hook
      *
      * @param mixed $params
      */
-    public function hookExtraLeft($params) {
-//        global $smarty;
-//		
-//		$html = '';
-//
-//        if ($this->pluginLikeButton->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginLikeButton->getContentForHook());
-//            $html .= $this->display(__FILE__, 'templates/hook/like-button.tpl');
-//        }
-//		
-//		if ($this->pluginSaveButton->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginSaveButton->getContentForHook());
-//            $html .= $this->display(__FILE__, 'templates/hook/save-button.tpl');
-//        }
-//		
-//		if ($this->pluginShareButton->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginShareButton->getContentForHook());
-//            $html .= $this->display(__FILE__, 'templates/hook/share-button.tpl');
-//        }
-//		
-//		return $html;
+    public function hookDisplayLeftColumnProduct($params) {
+
+		$html = '';
+
+        if ($this->pluginLikeButton->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginLikeButton->getContentForHook());
+            $html .= $this->display(__FILE__, 'like-button.tpl');
+        }
+
+		if ($this->pluginSaveButton->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginSaveButton->getContentForHook());
+            $html .= $this->display(__FILE__, 'save-button.tpl');
+        }
+
+		if ($this->pluginShareButton->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginShareButton->getContentForHook());
+            $html .= $this->display(__FILE__, 'share-button.tpl');
+        }
+		
+		return $html;
     }
 	
 	/**
-     * Hook Left Column
+     * Hook DisplayLeftColumn
      *
      * @param mixed $params
      */
-    public function hookLeftColumn($params)
+    public function hookDisplayLeftColumn($params)
 	{
-//        global $smarty;
-//		
-//		if ($this->pluginPagePlugin->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginPagePlugin->getContentForHook());
-//            return $this->display(__FILE__, 'templates/hook/page-plugin.tpl');
-//        }
+        if ($this->pluginPagePlugin->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginPagePlugin->getContentForHook());
+            return $this->display(__FILE__, 'page-plugin.tpl');
+        }
 	}
 	
 	/**
-     * Hook Tab on product page
+     * Hook DisplayProductTab
      *
      * @param mixed $params
      */
-    public function hookProductTab($params)
-	{
-//        global $smarty;
-//		
-//		if ($this->pluginCommentsPlugin->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
-//            return $this->display(__FILE__, 'templates/hook/tab-comments.tpl');
-//        }
+    public function hookDisplayProductTab($params)
+	{	
+		if ($this->pluginCommentsPlugin->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
+            return $this->display(__FILE__, 'tab-comments.tpl');
+        }
     }
 
     /**
-     * Hook Content of tab on product page
+     * Hook displayProductTabContent
      *
      * @param mixed $params
      */
-    public function hookProductTabContent($params)
-	{
-//        global $smarty;
-//		
-//		if ($this->pluginCommentsPlugin->isEnabled()) {
-//            $smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
-//            return $this->display(__FILE__, 'templates/hook/tab-comments-content.tpl');
-//        }
+    public function hookDisplayProductTabContent($params)
+	{		
+		if ($this->pluginCommentsPlugin->isEnabled()) {
+            $this->context->smarty->assign('FbPack', $this->pluginCommentsPlugin->getContentForHook());
+            return $this->display(__FILE__, 'tab-comments-content.tpl');
+        }
     }
 
 	/**
@@ -254,33 +220,33 @@ class FacebookSocialPlugins extends Module
 		$this->context->smarty->assign('pagePlugin', $this->pluginPagePlugin->getContent());
 		$this->context->smarty->assign('commentsPlugin', $this->pluginCommentsPlugin->getContent());
 
-//        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//            $errors = $this->getErrors();
-//            if (count($errors) > 0) {
-//                $smarty->assign('errors', $errors);
-//            } else {
-//                $smarty->assign('pluginSettingsUpdated', TRUE);
-//            }
-//        }
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = $this->getModuleErrors();
+            if (count($errors) > 0) {
+                $this->context->smarty->assign('errors', $errors);
+            } else {
+                $this->context->smarty->assign('pluginSettingsUpdated', TRUE);
+            }
+        }
 		
-		return $this->display(__FILE__, '/templates/content/index.tpl');
+		return $this->display(__FILE__, '/views/templates/admin/index.tpl');
     }
 
-//    private function getErrors()
-//    {
-//        $errors = array();
-//		if (count($this->fbPack->getErrors()) > 0) {
-//            $errors = array_merge($errors, $this->fbPack->getErrors());
-//        }
-//        if (count($this->pluginLikeButton->getErrors()) > 0) {
-//            $errors = array_merge($errors, $this->pluginLikeButton->getErrors());
-//        }
-//		if (count($this->pluginPagePlugin->getErrors()) > 0) {
-//            $errors = array_merge($errors, $this->pluginPagePlugin->getErrors());
-//        }
-//		if (count($this->pluginCommentsPlugin->getErrors()) > 0) {
-//            $errors = array_merge($errors, $this->pluginCommentsPlugin->getErrors());
-//        }
-//        return $errors;
-//    }
+    private function getModuleErrors()
+    {
+        $errors = array();
+		if (count($this->fbPack->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->fbPack->getErrors());
+        }
+        if (count($this->pluginLikeButton->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginLikeButton->getErrors());
+        }
+		if (count($this->pluginPagePlugin->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginPagePlugin->getErrors());
+        }
+		if (count($this->pluginCommentsPlugin->getErrors()) > 0) {
+            $errors = array_merge($errors, $this->pluginCommentsPlugin->getErrors());
+        }
+        return $errors;
+    }
 }

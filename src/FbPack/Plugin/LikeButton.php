@@ -130,18 +130,14 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
      */
     public function install()
     {
-        if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
-            !Configuration::updateValue(self::URL, $this->url) or
-            !Configuration::updateValue(self::WIDTH, $this->width) or
-            !Configuration::updateValue(self::LAYOUT, $this->layout) or
-            !Configuration::updateValue(self::ACTION, $this->action) or
-            !Configuration::updateValue(self::FACES, $this->faces) or
-            !Configuration::updateValue(self::SHARE, $this->share) or
-            !Configuration::updateValue(self::COLORSCHEME, $this->colorscheme)) {
-            return false;
-        }
-
-        return true;
+        return Configuration::updateValue(self::ENABLED, $this->enabled) &&
+			Configuration::updateValue(self::URL, $this->url) &&
+            Configuration::updateValue(self::WIDTH, $this->width) &&
+            Configuration::updateValue(self::LAYOUT, $this->layout) &&
+            Configuration::updateValue(self::ACTION, $this->action) &&
+            Configuration::updateValue(self::FACES, $this->faces) &&
+            Configuration::updateValue(self::SHARE, $this->share) &&
+            Configuration::updateValue(self::COLORSCHEME, $this->colorscheme);
     }
 
     /**
@@ -149,18 +145,14 @@ class FbPack_Plugin_LikeButton extends FbPack_Plugin_Abstract
      */
     public function uninstall()
     {
-        if (!Configuration::deleteByName(self::ENABLED) or
-            !Configuration::deleteByName(self::URL) or
-            !Configuration::deleteByName(self::WIDTH) or
-            !Configuration::deleteByName(self::LAYOUT) or
-            !Configuration::deleteByName(self::ACTION) or
-            !Configuration::deleteByName(self::FACES) or
-            !Configuration::deleteByName(self::SHARE) or
-            !Configuration::deleteByName(self::COLORSCHEME)) {
-            return false;
-        }
-
-        return true;
+		return Configuration::deleteByName(self::ENABLED) &&
+            Configuration::deleteByName(self::URL) &&
+            Configuration::deleteByName(self::WIDTH) &&
+            Configuration::deleteByName(self::LAYOUT) &&
+            Configuration::deleteByName(self::ACTION) &&
+            Configuration::deleteByName(self::FACES) &&
+            Configuration::deleteByName(self::SHARE) &&
+            Configuration::deleteByName(self::COLORSCHEME);
     }
 
     /**

@@ -69,23 +69,15 @@ class FbPack_Module extends FbPack_Plugin_Abstract
      */
     public function install()
     {
-        if (!Configuration::updateValue(self::LOCALE, $this->locale)) {
-            return false;
-        }
-
-        return true;
-    }
+		return Configuration::updateValue(self::LOCALE, $this->locale);
+	}
 
     /**
      * @return boolean
      */
     public function uninstall()
     {
-        if (!Configuration::deleteByName(self::LOCALE)) {
-            return false;
-        }
-
-        return true;
+        return Configuration::deleteByName(self::LOCALE);
     }
 
 	/**

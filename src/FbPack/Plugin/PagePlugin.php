@@ -169,38 +169,30 @@ class FbPack_Plugin_PagePlugin extends FbPack_Plugin_Abstract
 
 	public function install()
 	{
-		if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
-            !Configuration::updateValue(self::URL, $this->url) or
-			!Configuration::updateValue(self::PAGENAME, $this->pageName) or
-			!Configuration::updateValue(self::TABS, Tools::jsonEncode($this->tabs)) or
-            !Configuration::updateValue(self::WIDTH, $this->width) or
-			!Configuration::updateValue(self::HEIGHT, $this->height) or
-			!Configuration::updateValue(self::HEADER, $this->header) or	
-			!Configuration::updateValue(self::COVER, $this->cover) or
-			!Configuration::updateValue(self::ADAPT, $this->adapt) or
-			!Configuration::updateValue(self::FACES, $this->faces) ) {
-            return false;
-        }
-
-        return true;
+		return Configuration::updateValue(self::ENABLED, $this->enabled) &&
+			Configuration::updateValue(self::URL, $this->url) &&
+			Configuration::updateValue(self::PAGENAME, $this->pageName) &&
+			Configuration::updateValue(self::TABS, Tools::jsonEncode($this->tabs)) &&
+            Configuration::updateValue(self::WIDTH, $this->width) &&
+			Configuration::updateValue(self::HEIGHT, $this->height) &&
+			Configuration::updateValue(self::HEADER, $this->header) &&	
+			Configuration::updateValue(self::COVER, $this->cover) &&
+			Configuration::updateValue(self::ADAPT, $this->adapt) &&
+			Configuration::updateValue(self::FACES, $this->faces);
 	}
 
 	public function uninstall()
 	{
-		if (!Configuration::deleteByName(self::ENABLED) or
-            !Configuration::deleteByName(self::URL) or
-            !Configuration::deleteByName(self::PAGENAME) or
-            !Configuration::deleteByName(self::TABS) or
-            !Configuration::deleteByName(self::WIDTH) or
-            !Configuration::deleteByName(self::HEIGHT) or
-            !Configuration::deleteByName(self::HEADER) or
-            !Configuration::deleteByName(self::COVER) or
-			!Configuration::deleteByName(self::ADAPT) or
-			!Configuration::deleteByName(self::FACES)) {
-            return false;
-        }
-
-        return true;
+		return Configuration::deleteByName(self::ENABLED) &&
+			Configuration::deleteByName(self::URL) &&
+            Configuration::deleteByName(self::PAGENAME) &&
+            Configuration::deleteByName(self::TABS) &&
+            Configuration::deleteByName(self::WIDTH) &&
+            Configuration::deleteByName(self::HEIGHT) &&
+            Configuration::deleteByName(self::HEADER) &&
+            Configuration::deleteByName(self::COVER) &&
+			Configuration::deleteByName(self::ADAPT) &&
+			Configuration::deleteByName(self::FACES);
 	}
 	
 	/**

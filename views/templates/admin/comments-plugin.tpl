@@ -1,7 +1,7 @@
 <!-- templates/content/share-button.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/comments_plugin.png" />{$commentsPlugin.name}</legend>
+    <fieldset>
+        <legend><img src="{$path}views/templates/img/comments_plugin.png" />{$commentsPlugin.name}</legend>
         <label>{$common.enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="commentsPlugin-enabled" value="1" {if $commentsPlugin.enabled eq 1}checked="checked"{/if} />

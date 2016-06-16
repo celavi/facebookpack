@@ -1,7 +1,7 @@
 <!-- templates/content/save-button.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/save_button.png" />{$saveButton.name}</legend>
+    <fieldset>
+        <legend><img src="{$path}views/templates/img/save_button.png" />{$saveButton.name}</legend>
         <label>{$common.enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="saveButton-enabled" value="1" {if $saveButton.enabled eq 1}checked="checked"{/if} />

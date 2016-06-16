@@ -1,7 +1,7 @@
 <!-- templates/content/like-button.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/like_button.png" />{$likeButton.name}</legend>
+    <fieldset>
+        <legend><img src="{$path}views/templates/img/like_button.png" />{$likeButton.name}</legend>
         <label>{$common.enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="likeButton-enabled" value="1" {if $likeButton.enabled eq 1}checked="checked"{/if} />

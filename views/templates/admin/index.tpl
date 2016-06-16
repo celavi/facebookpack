@@ -1,16 +1,20 @@
 <!-- templates/content/intex.tpl -->
 <h2>{$displayName}</h2>
 {if isset($pluginSettingsUpdated)}
-<div class="conf confirm"><img src="../img/admin/ok.gif" alt="{$common.settingsUpdated}" /> {$common.settingsUpdated}</div>
+<div class="module_confirmation conf confirm">
+	{$common.settingsUpdated}
+</div>
 {/if}
 <!-- errors -->
 {if isset($errors)}
 	{foreach $errors as $error}
-		<div class="alert error">{$error}</div>
+		<div class="module_error alert error">
+			{$error}
+		</div>
 	{/foreach}
 {/if}
 <!-- social -->
-<img src="{$path}images/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$common.socialTitle}</b>
+<img src="{$path}views/templates/img/social_plugins.jpg" style="float:left; margin-right:15px;"><b>{$common.socialTitle}</b>
 <br />
 <br /> {$common.socialDescriptionCommon}
 <br /> {$common.socialDescriptionPlugins}
@@ -19,6 +23,7 @@
 <!-- Donate -->
 {include file='./donate.tpl'}
 <br />
+
 <!-- Localization and Translation -->
 {include file='./localization.tpl'}
 <br />

@@ -72,26 +72,18 @@ class FbPack_Plugin_ShareButton extends FbPack_Plugin_Abstract
 	
 	public function install()
 	{
-		if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
-            !Configuration::updateValue(self::URL, $this->url) or
-            !Configuration::updateValue(self::LAYOUT, $this->layout) or
-			!Configuration::updateValue(self::MOBILE, $this->mobile)) {
-            return false;
-        }
-
-        return true;
+		return Configuration::updateValue(self::ENABLED, $this->enabled) &&
+			Configuration::updateValue(self::URL, $this->url) &&
+            Configuration::updateValue(self::LAYOUT, $this->layout) &&
+			Configuration::updateValue(self::MOBILE, $this->mobile);
 	}
 
 	public function uninstall()
 	{
-		if (!Configuration::deleteByName(self::ENABLED) or
-            !Configuration::deleteByName(self::URL) or
-            !Configuration::deleteByName(self::LAYOUT) or
-			!Configuration::deleteByName(self::MOBILE)) {
-            return false;
-        }
-		
-		return true;
+		return Configuration::deleteByName(self::ENABLED) &&
+			Configuration::deleteByName(self::URL) &&
+            Configuration::deleteByName(self::LAYOUT) &&
+			Configuration::deleteByName(self::MOBILE);
 	}
 	
 	/**

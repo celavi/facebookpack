@@ -55,24 +55,16 @@ class FbPack_Plugin_SaveButton extends FbPack_Plugin_Abstract
 
 	public function install()
 	{
-		if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
-            !Configuration::updateValue(self::URL, $this->url) or
-            !Configuration::updateValue(self::SIZE, $this->size)) {
-            return false;
-        }
-
-        return true;
+		return Configuration::updateValue(self::ENABLED, $this->enabled) &&
+			Configuration::updateValue(self::URL, $this->url) &&
+            Configuration::updateValue(self::SIZE, $this->size);
 	}
 
 	public function uninstall() 
 	{
-		if (!Configuration::deleteByName(self::ENABLED) or
-            !Configuration::deleteByName(self::URL) or
-            !Configuration::deleteByName(self::SIZE)) {
-            return false;
-        }
-		
-		return true;
+		return Configuration::deleteByName(self::ENABLED) &&
+			Configuration::deleteByName(self::URL) &&
+            Configuration::deleteByName(self::SIZE);
 	}
 	
 	/**

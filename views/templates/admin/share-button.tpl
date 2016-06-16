@@ -1,7 +1,7 @@
 <!-- templates/content/share-button.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/share_button.png" />{$shareButton.name}</legend>
+    <fieldset>
+        <legend><img src="{$path}views/templates/img/share_button.png" />{$shareButton.name}</legend>
         <label>{$common.enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="shareButton-enabled" value="1" {if $shareButton.enabled eq 1}checked="checked"{/if} />

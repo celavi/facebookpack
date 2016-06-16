@@ -1,7 +1,7 @@
 <!-- templates/content/page-plugin.tpl -->
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <fieldset class="width3" style="width:850px">
-        <legend><img src="{$path}images/like_page.png" />{$pagePlugin.name}</legend>
+    <fieldset>
+        <legend><img src="{$path}views/templates/img/like_page.png" />{$pagePlugin.name}</legend>
         <label>{$common.enablePlugin}</label>
         <div class="margin-form">
             <input type="checkbox" name="pagePlugin-enabled" value="1" {if $pagePlugin.enabled eq 1}checked="checked"{/if} />

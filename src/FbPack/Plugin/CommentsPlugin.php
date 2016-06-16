@@ -92,28 +92,20 @@ class FbPack_Plugin_CommentsPlugin extends FbPack_Plugin_Abstract
 
 	public function install()
 	{
-		if (!Configuration::updateValue(self::ENABLED, $this->enabled) or
-            !Configuration::updateValue(self::URL, $this->url) or
-            !Configuration::updateValue(self::WIDTH, $this->width) or
-			!Configuration::updateValue(self::NUMPOSTS, $this->numPosts) or 
-			!Configuration::updateValue(self::COLORSCHEME, $this->colorscheme)) {
-            return false;
-        }
-		
-		return true;
+		return Configuration::updateValue(self::ENABLED, $this->enabled) &&
+            Configuration::updateValue(self::URL, $this->url) &&
+            Configuration::updateValue(self::WIDTH, $this->width) &&
+			Configuration::updateValue(self::NUMPOSTS, $this->numPosts) &&
+			Configuration::updateValue(self::COLORSCHEME, $this->colorscheme);
 	}
 
 	public function uninstall()
 	{
-		if (!Configuration::deleteByName(self::ENABLED) or
-            !Configuration::deleteByName(self::URL) or
-            !Configuration::deleteByName(self::WIDTH) or
-			!Configuration::deleteByName(self::NUMPOSTS) or
-			!Configuration::deleteByName(self::COLORSCHEME)) {
-            return false;
-        }
-		
-		return true;
+		return Configuration::deleteByName(self::ENABLED) &&
+			Configuration::deleteByName(self::URL) &&
+            Configuration::deleteByName(self::WIDTH) &&
+			Configuration::deleteByName(self::NUMPOSTS) &&
+			Configuration::deleteByName(self::COLORSCHEME);
 	}
 	
 	/**
