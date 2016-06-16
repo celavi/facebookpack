@@ -1,3 +1,3 @@
 # Module
-* Refactor templates
-* Create new branches for 1.6
+* Add hookDisplayHome for Page Plugin (@ blockfacebook)
+* Change hookDisplayProductTab and hookDisplayProductTabContent templates accordingly

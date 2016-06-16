@@ -57,7 +57,7 @@ class FacebookSocialPlugins extends Module
         $this->author = FbPack_Module::AUTHOR;
         $this->version = FbPack_Module::VERSION;
 		$this->need_instance = 0;
-		$this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.5.6.3');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.6');
 		
         parent::__construct();
 		
